@@ -11,6 +11,9 @@ interface ModalProps {
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | string;
+  titleClassName?: string;
+  headerClassName?: string;
+  bodyClassName?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,6 +24,9 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth,
   size,
+  titleClassName,
+  headerClassName,
+  bodyClassName,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,9 +80,18 @@ export const Modal: React.FC<ModalProps> = ({
         className={`relative w-full ${modalWidth} bg-white rounded-3xl shadow-[8px_8px_0px_0px_#000] border-2 border-black overflow-hidden z-10 my-8 transition-all duration-200 animate-in zoom-in-95`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 sm:p-7 border-b border-neutral-100 bg-neutral-50/50">
+        <div
+          className={`flex ${
+            subtitle ? 'items-start' : 'items-center'
+          } justify-between px-6 py-5 sm:px-8 sm:py-6 border-b border-neutral-100 bg-neutral-50/50 ${
+            headerClassName || ''
+          }`}
+        >
           <div className="pr-4">
-            <h3 id="modal-title" className="text-xl font-bold text-neutral-900 tracking-tight">
+            <h3
+              id="modal-title"
+              className={titleClassName || 'text-xl font-bold text-neutral-900 tracking-tight'}
+            >
               {title}
             </h3>
             {subtitle && (
@@ -94,7 +109,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-6 sm:p-7 max-h-[75vh] overflow-y-auto space-y-4">
+        <div className={`p-6 sm:px-8 sm:py-7 max-h-[75vh] overflow-y-auto ${bodyClassName || 'space-y-4'}`}>
           {children}
         </div>
       </div>

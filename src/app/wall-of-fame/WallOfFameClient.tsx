@@ -282,106 +282,99 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
           onClose={() => setSelectedAchievement(null)}
           title="Detail Capaian Prestasi"
           maxWidth="4xl"
+          titleClassName="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight translate-y-1 sm:translate-y-1.5"
+          headerClassName="px-6 py-5 sm:px-8 sm:py-6 bg-white"
+          bodyClassName="p-6 sm:p-8"
         >
-          <div className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              {/* Sisi Kiri: Foto Dokumentasi Prestasi */}
-              <div className="w-full md:w-[36%] shrink-0">
-                <div className="w-full aspect-4/3 rounded-2xl overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_#000] bg-neutral-900 relative flex items-center justify-center">
-                  {selectedAchievement.photoUrl ? (
-                    <img
-                      src={selectedAchievement.photoUrl}
-                      alt={selectedAchievement.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-white relative">
-                      <div className="size-14 rounded-2xl bg-white/10 backdrop-blur-xs flex items-center justify-center border border-white/20 mb-2 shadow-inner">
-                        <Trophy className="size-7 text-amber-400 drop-shadow" />
-                      </div>
-                      <p className="text-xs font-bold text-neutral-200 tracking-wide">Dokumentasi Prestasi</p>
-                      <p className="text-[10px] text-neutral-400 mt-0.5">Departemen MB ITS</p>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+            {/* Sisi Kiri: Foto Dokumentasi Prestasi */}
+            <div className="w-full md:w-[36%] shrink-0">
+              <div className="w-full aspect-4/3 rounded-2xl overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_#000] bg-neutral-900 relative flex items-center justify-center">
+                {selectedAchievement.photoUrl ? (
+                  <img
+                    src={selectedAchievement.photoUrl}
+                    alt={selectedAchievement.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-white relative">
+                    <div className="size-14 rounded-2xl bg-white/10 backdrop-blur-xs flex items-center justify-center border border-white/20 mb-2 shadow-inner">
+                      <Trophy className="size-7 text-amber-400 drop-shadow" />
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Sisi Kanan: Tulisan Pendukung (Memanjang & Tidak Padat) */}
-              <div className="flex-1 min-w-0 space-y-3.5 text-xs sm:text-sm">
-                {/* Pencapaian (Nama Ajang) ditulis tebal di samping foto */}
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-neutral-900 leading-snug">
-                    {selectedAchievement.title}
-                  </h3>
-                  {/* Penyelenggara di bawahnya dengan font lebih kecil warna abu-abu */}
-                  <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
-                    Penyelenggara: {selectedAchievement.eventOrganizer}
-                  </p>
-                </div>
-
-                {/* Rincian Anggota Tim & Nama Mahasiswa */}
-                <div className="pt-2.5 border-t border-neutral-100 space-y-1.5">
-                  <p className="font-bold text-neutral-900 flex items-center gap-1.5 text-xs">
-                    <Users className="size-3.5 text-blue-600" />
-                    <span>Anggota Tim &amp; Mahasiswa Penerima:</span>
-                  </p>
-                  {selectedAchievement.teamName && (
-                    <p className="text-xs font-bold text-blue-600 flex items-center gap-1.5 pl-1">
-                      <Sparkles className="size-3" />
-                      <span>Tim: {selectedAchievement.teamName}</span>
-                    </p>
-                  )}
-                  <ul className="space-y-1 pl-1">
-                    {selectedAchievement.members.map((member, i) => (
-                      <li key={i} className="text-xs sm:text-sm text-neutral-700 flex items-center gap-2">
-                        <span className="size-1.5 rounded-full bg-blue-600 shrink-0" />
-                        <span className="font-medium">{member}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {selectedAchievement.advisor && (
-                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 pt-0.5 pl-1">
-                      <GraduationCap className="size-3.5 text-neutral-400 shrink-0" />
-                      <span>Dosen Pembina: {selectedAchievement.advisor}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Deskripsi Capaian Prestasi - teks warna hitam saja dengan ukuran font sedikit lebih kecil */}
-                <div className="pt-2.5 border-t border-neutral-100">
-                  <p className="font-bold text-neutral-900 mb-1 text-xs">Deskripsi Capaian Prestasi:</p>
-                  <p className="text-xs text-black font-normal leading-relaxed whitespace-pre-wrap">
-                    {selectedAchievement.description}
-                  </p>
-                </div>
-
-                {/* Bukti Sertifikat / SK (Jika ada) */}
-                {selectedAchievement.certificateStorageKey && (
-                  <div className="pt-2.5 border-t border-neutral-100">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const res = await getCertificateDownloadUrl(selectedAchievement.certificateStorageKey!);
-                        if (res.url) window.open(res.url, '_blank');
-                      }}
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition border border-blue-200 cursor-pointer"
-                    >
-                      <FileCheck className="size-3.5 text-blue-600" />
-                      <span>Lihat / Unduh Bukti Sertifikat / SK</span>
-                    </button>
+                    <p className="text-xs font-bold text-neutral-200 tracking-wide">Dokumentasi Prestasi</p>
+                    <p className="text-[10px] text-neutral-400 mt-0.5">Departemen MB ITS</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-end pt-3 border-t border-neutral-100">
-              <SecondaryButton
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedAchievement(null)}
-              >
-                Tutup
-              </SecondaryButton>
+            {/* Sisi Kanan: Tulisan Pendukung (Memanjang & Tidak Padat) */}
+            <div className="flex-1 min-w-0 space-y-4 text-xs sm:text-sm">
+              {/* Pencapaian (Nama Ajang) ditulis tebal di samping foto */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-neutral-900 leading-snug">
+                  {selectedAchievement.title}
+                </h3>
+                {/* Penyelenggara di bawahnya dengan font lebih kecil warna abu-abu */}
+                <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
+                  Penyelenggara: {selectedAchievement.eventOrganizer}
+                </p>
+              </div>
+
+              {/* Rincian Anggota Tim & Nama Mahasiswa */}
+              <div className="pt-3 border-t border-neutral-100 space-y-2">
+                <p className="font-bold text-neutral-900 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <Users className="size-4 text-blue-600" />
+                  <span>Anggota Tim &amp; Mahasiswa Penerima:</span>
+                </p>
+                {selectedAchievement.teamName && (
+                  <p className="text-xs font-bold text-blue-600 flex items-center gap-1.5 pl-1">
+                    <Sparkles className="size-3.5" />
+                    <span>Tim: {selectedAchievement.teamName}</span>
+                  </p>
+                )}
+                <ul className="space-y-1.5 pl-1">
+                  {selectedAchievement.members.map((member, i) => (
+                    <li key={i} className="text-xs sm:text-sm text-neutral-700 flex items-center gap-2">
+                      <span className="size-1.5 rounded-full bg-blue-600 shrink-0" />
+                      <span className="font-medium">{member}</span>
+                    </li>
+                  ))}
+                </ul>
+                {selectedAchievement.advisor && (
+                  <div className="flex items-center gap-1.5 text-xs text-neutral-500 pt-1 pl-1">
+                    <GraduationCap className="size-3.5 text-neutral-400 shrink-0" />
+                    <span>Dosen Pembina: {selectedAchievement.advisor}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Deskripsi Capaian Prestasi - teks warna hitam saja dengan ukuran font sedikit lebih kecil */}
+              {selectedAchievement.description && (
+                <div className="pt-3 border-t border-neutral-100">
+                  <p className="font-bold text-neutral-900 mb-1.5 text-xs sm:text-sm">Deskripsi Capaian Prestasi:</p>
+                  <p className="text-xs sm:text-sm text-neutral-800 font-normal leading-relaxed whitespace-pre-wrap">
+                    {selectedAchievement.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Bukti Sertifikat / SK (Jika ada) */}
+              {selectedAchievement.certificateStorageKey && (
+                <div className="pt-3 border-t border-neutral-100">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const res = await getCertificateDownloadUrl(selectedAchievement.certificateStorageKey!);
+                      if (res.url) window.open(res.url, '_blank');
+                    }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition border border-blue-200 cursor-pointer"
+                  >
+                    <FileCheck className="size-3.5 text-blue-600" />
+                    <span>Lihat / Unduh Bukti Sertifikat / SK</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </Modal>
