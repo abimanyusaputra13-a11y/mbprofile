@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -13,7 +13,7 @@ import { AchievementCard } from '@/components/cards/AchievementCard';
 import { mockResources } from '@/data/resources';
 import { mockAnnouncements } from '@/data/announcements';
 import { mockAchievements } from '@/data/achievements';
-import { Resource, Achievement, Announcement, TimeframeFilter } from '@/types';
+import { Resource, Achievement, Announcement } from '@/types';
 import { getPopularMaterials, recordMaterialVisit } from '@/lib/actions/materials';
 import { getPublicAnnouncements } from '@/lib/actions/announcements';
 import {
@@ -34,7 +34,6 @@ import {
   BellRing,
   Download,
   Flame,
-  Clock,
   Radio,
 } from 'lucide-react';
 
@@ -44,28 +43,36 @@ export default function HomePage() {
   const [downloadModalResource, setDownloadModalResource] = useState<Resource | null>(null);
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
 
-  // Real-time dynamic states
-  const [timeframe, setTimeframe] = useState<TimeframeFilter>('all');
-  const [popularMaterials, setPopularMaterials] = useState<Resource[]>(() => mockResources.slice(0, 3));
+  // Real-time dynamic states (sorted by highest visit count from Materi & Soal)
+  const [popularMaterials, setPopularMaterials] = useState<Resource[]>(() =>
+    [...mockResources]
+      .sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0))
+      .slice(0, 3)
+      .map((r) => ({
+        ...r,
+        total_views: r.downloadCount * 4 + 100,
+        timeframe_views: r.downloadCount * 4 + 100,
+      }))
+  );
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => mockAnnouncements.slice(0, 4));
-  const [isPendingTimeframe, startTransition] = useTransition();
   const [isLiveMaterialsDb, setIsLiveMaterialsDb] = useState(false);
   const [isLiveAnnouncementsDb, setIsLiveAnnouncementsDb] = useState(false);
 
-  // Load popular materials based on active timeframe
+  // Load top most-visited materials from database
   useEffect(() => {
     let isMounted = true;
-    startTransition(async () => {
-      const res = await getPopularMaterials(timeframe, 3);
+    async function loadPopularMaterials() {
+      const res = await getPopularMaterials('all', 3);
       if (isMounted && res.data && res.data.length > 0) {
         setPopularMaterials(res.data);
         setIsLiveMaterialsDb(res.isLiveDb);
       }
-    });
+    }
+    loadPopularMaterials();
     return () => {
       isMounted = false;
     };
-  }, [timeframe]);
+  }, []);
 
   // Load announcements
   useEffect(() => {
@@ -408,7 +415,7 @@ export default function HomePage() {
                 Materi & <span className="text-script text-blue-600 font-normal">Bank Soal</span> Populer
               </h2>
               <p className="text-sm sm:text-base text-neutral-600 font-light mt-2 max-w-xl">
-                Akses materi yang paling banyak dikunjungi mahasiswa berdasarkan kurun waktu kunjungan terverifikasi.
+                Akses materi dan bank soal yang paling banyak dikunjungi mahasiswa berdasarkan data kunjungan pada halaman Materi dan Soal.
               </p>
             </div>
 
@@ -419,52 +426,29 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Interactive Timeframe Filter Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 p-2 sm:p-2.5 rounded-2xl bg-neutral-100/90 border border-neutral-200">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider px-2 hidden sm:inline flex items-center gap-1">
-                <Clock className="size-3.5" /> Rentang Waktu:
+          {/* Popular Ranking Indicator Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 px-4 py-3 rounded-2xl bg-neutral-100/90 border border-neutral-200">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center size-6 rounded-lg bg-amber-100 text-amber-700 text-xs font-bold shadow-2xs">
+                🏆
               </span>
-              {[
-                { key: 'today' as TimeframeFilter, label: 'Hari Ini', icon: '⚡', desc: '24 Jam' },
-                { key: 'week' as TimeframeFilter, label: 'Minggu Ini', icon: '🔥', desc: '7 Hari' },
-                { key: 'month' as TimeframeFilter, label: 'Bulan Ini', icon: '📈', desc: '30 Hari' },
-                { key: 'all' as TimeframeFilter, label: 'Semua Waktu', icon: '🏆', desc: 'Total Hits' },
-              ].map((tf) => {
-                const isActive = timeframe === tf.key;
-                return (
-                  <button
-                    key={tf.key}
-                    type="button"
-                    onClick={() => setTimeframe(tf.key)}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-white text-neutral-700 hover:bg-neutral-50 hover:text-blue-600 border border-neutral-200'
-                    }`}
-                  >
-                    <span>{tf.icon}</span>
-                    <span>{tf.label}</span>
-                    <span className={`text-[10px] font-normal px-1.5 py-0.2 rounded-md ${
-                      isActive ? 'bg-blue-500/80 text-blue-50' : 'bg-neutral-100 text-neutral-500'
-                    }`}>
-                      {tf.desc}
-                    </span>
-                  </button>
-                );
-              })}
+              <span className="text-xs font-bold text-neutral-900">
+                Materi & Bank Soal Terpopuler
+              </span>
+              <span className="hidden sm:inline text-neutral-400">•</span>
+              <span className="hidden sm:inline text-xs text-neutral-600">
+                Diurutkan otomatis dari materi dan soal yang paling banyak dikunjungi
+              </span>
             </div>
 
-            <div className="text-[11px] text-neutral-500 px-2 flex items-center gap-1.5">
+            <div className="text-[11px] text-neutral-500 px-1 flex items-center gap-1.5">
               <Flame className="size-3.5 text-amber-500 shrink-0" />
               <span>Diurutkan otomatis dari kunjungan terbanyak</span>
             </div>
           </div>
 
           {/* Cards Grid */}
-          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${
-            isPendingTimeframe ? 'opacity-50 pointer-events-none' : 'opacity-100'
-          }`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularMaterials.map((resource) => (
               <ResourceCard
                 key={resource.id}
