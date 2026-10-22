@@ -8,8 +8,25 @@ import { Badge } from '@/components/ui/Badge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
 import { Modal } from '@/components/ui/Modal';
-import { WeeklyLearningPageData, saveWeeklyMaterial, deleteWeeklyMaterial, uploadWeeklyAttachment, saveQuizBasic } from '@/lib/actions/weeklyLearning';
-import { WeeklyMaterial, CourseAttachment, CourseQuiz } from '@/types/course';
+import {
+  WeeklyLearningPageData,
+  saveWeeklyMaterial,
+  deleteWeeklyMaterial,
+  uploadWeeklyAttachment,
+  saveQuizBasic,
+  saveQuizQuestion,
+  deleteQuizQuestion,
+  deleteQuiz,
+  getAdminQuizDetails,
+  toggleQuizPublishStatus,
+} from '@/lib/actions/weeklyLearning';
+import {
+  WeeklyMaterial,
+  CourseAttachment,
+  CourseQuiz,
+  QuizQuestion,
+  QuestionType,
+} from '@/types/course';
 import {
   ArrowLeft,
   Calendar,
@@ -24,12 +41,33 @@ import {
   Trash2,
   Edit3,
   CheckCircle,
+  CheckCircle2,
   HelpCircle,
   AlertCircle,
   Layers,
   FileCheck,
   ChevronDown,
+  Globe,
+  Lock,
+  Settings,
+  ExternalLink,
+  Check,
+  X,
 } from 'lucide-react';
+
+interface QuestionFormState {
+  id?: string;
+  question_text: string;
+  question_type: QuestionType;
+  points: number;
+  explanation: string;
+  options: {
+    id?: string;
+    option_text: string;
+    is_correct: boolean;
+    display_order: number;
+  }[];
+}
 
 interface WeeklyLearningClientProps {
   initialData: WeeklyLearningPageData;
@@ -67,12 +105,33 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
   const [isUploading, setIsUploading] = useState(false);
 
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [editingQuizSettings, setEditingQuizSettings] = useState<CourseQuiz | null>(null);
   const [quizForm, setQuizForm] = useState({
     title: '',
     description: '',
     time_limit_minutes: '15',
     passing_score: '70',
     max_attempts: '3',
+    is_published: true,
+  });
+
+  // Question Management States
+  const [activeQuizForQuestions, setActiveQuizForQuestions] = useState<CourseQuiz | null>(null);
+  const [activeQuizQuestions, setActiveQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [isQuestionEditorOpen, setIsQuestionEditorOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<QuizQuestion | null>(null);
+  const [questionForm, setQuestionForm] = useState<QuestionFormState>({
+    question_text: '',
+    question_type: 'single_choice',
+    points: 10,
+    explanation: '',
+    options: [
+      { option_text: '', is_correct: true, display_order: 0 },
+      { option_text: '', is_correct: false, display_order: 1 },
+      { option_text: '', is_correct: false, display_order: 2 },
+      { option_text: '', is_correct: false, display_order: 3 },
+    ],
   });
 
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -238,7 +297,383 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
     }
   };
 
-  // Handlers for Quiz Creation
+  // ===========================================================================
+  // Handlers for Question Authoring & Management
+  // ===========================================================================
+  const handleOpenQuestionManager = async (quiz: CourseQuiz) => {
+    setActiveQuizForQuestions(quiz);
+    setIsLoadingQuestions(true);
+    setIsQuestionEditorOpen(false);
+    setEditingQuestion(null);
+    const res = await getAdminQuizDetails(quiz.id);
+    setIsLoadingQuestions(false);
+    if (res.data?.questions) {
+      setActiveQuizQuestions(res.data.questions);
+    } else {
+      setActiveQuizQuestions([]);
+    }
+  };
+
+  const handleOpenAddQuestion = () => {
+    setEditingQuestion(null);
+    setQuestionForm({
+      question_text: '',
+      question_type: 'single_choice',
+      points: 10,
+      explanation: '',
+      options: [
+        { option_text: '', is_correct: true, display_order: 0 },
+        { option_text: '', is_correct: false, display_order: 1 },
+        { option_text: '', is_correct: false, display_order: 2 },
+        { option_text: '', is_correct: false, display_order: 3 },
+      ],
+    });
+    setIsQuestionEditorOpen(true);
+  };
+
+  const handleOpenEditQuestion = (q: QuizQuestion) => {
+    setEditingQuestion(q);
+    setQuestionForm({
+      id: q.id,
+      question_text: q.question_text,
+      question_type: q.question_type,
+      points: q.points,
+      explanation: q.explanation || '',
+      options: q.options.map((opt) => ({
+        id: opt.id,
+        option_text: opt.option_text,
+        is_correct: Boolean(opt.is_correct),
+        display_order: opt.display_order,
+      })),
+    });
+    setIsQuestionEditorOpen(true);
+  };
+
+  const handleTypeChange = (newType: QuestionType) => {
+    if (newType === 'true_false') {
+      setQuestionForm((prev) => ({
+        ...prev,
+        question_type: newType,
+        options: [
+          { option_text: 'Benar', is_correct: true, display_order: 0 },
+          { option_text: 'Salah', is_correct: false, display_order: 1 },
+        ],
+      }));
+    } else if (newType === 'single_choice') {
+      const hasCorrect = questionForm.options.some((o) => o.is_correct);
+      const adjusted = questionForm.options.map((o, idx) => ({
+        ...o,
+        is_correct: hasCorrect ? (idx === 0 ? true : false) : idx === 0,
+      }));
+      setQuestionForm((prev) => ({
+        ...prev,
+        question_type: newType,
+        options:
+          adjusted.length >= 2
+            ? adjusted
+            : [
+                { option_text: '', is_correct: true, display_order: 0 },
+                { option_text: '', is_correct: false, display_order: 1 },
+              ],
+      }));
+    } else {
+      setQuestionForm((prev) => ({
+        ...prev,
+        question_type: newType,
+        options:
+          prev.options.length >= 2
+            ? prev.options
+            : [
+                { option_text: '', is_correct: true, display_order: 0 },
+                { option_text: '', is_correct: false, display_order: 1 },
+              ],
+      }));
+    }
+  };
+
+  const handleOptionTextChange = (idx: number, text: string) => {
+    setQuestionForm((prev) => {
+      const nextOpts = [...prev.options];
+      nextOpts[idx].option_text = text;
+      return { ...prev, options: nextOpts };
+    });
+  };
+
+  const handleOptionCorrectToggle = (idx: number) => {
+    setQuestionForm((prev) => {
+      const nextOpts = [...prev.options];
+      if (prev.question_type === 'single_choice' || prev.question_type === 'true_false') {
+        return {
+          ...prev,
+          options: nextOpts.map((opt, i) => ({
+            ...opt,
+            is_correct: i === idx,
+          })),
+        };
+      } else {
+        nextOpts[idx].is_correct = !nextOpts[idx].is_correct;
+        return { ...prev, options: nextOpts };
+      }
+    });
+  };
+
+  const handleAddOption = () => {
+    if (questionForm.options.length >= 6) return;
+    setQuestionForm((prev) => ({
+      ...prev,
+      options: [
+        ...prev.options,
+        {
+          option_text: '',
+          is_correct: false,
+          display_order: prev.options.length,
+        },
+      ],
+    }));
+  };
+
+  const handleRemoveOption = (idx: number) => {
+    if (questionForm.options.length <= 2) return;
+    setQuestionForm((prev) => ({
+      ...prev,
+      options: prev.options.filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleSaveQuestionSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeQuizForQuestions) return;
+
+    if (!questionForm.question_text.trim()) {
+      alert('Teks soal wajib diisi.');
+      return;
+    }
+
+    const emptyOpts = questionForm.options.some((o) => !o.option_text.trim());
+    if (emptyOpts) {
+      alert('Semua teks pilihan jawaban harus diisi.');
+      return;
+    }
+
+    const correctCount = questionForm.options.filter((o) => o.is_correct).length;
+    if (
+      (questionForm.question_type === 'single_choice' ||
+        questionForm.question_type === 'true_false') &&
+      correctCount !== 1
+    ) {
+      alert('Soal ini harus memiliki tepat 1 kunci jawaban yang benar.');
+      return;
+    }
+
+    if (questionForm.question_type === 'multiple_choice' && correctCount < 1) {
+      alert('Soal Pilihan Ganda Kompleks harus memiliki minimal 1 kunci jawaban yang benar.');
+      return;
+    }
+
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await saveQuizQuestion({
+        id: editingQuestion?.id,
+        quiz_id: activeQuizForQuestions.id,
+        question_text: questionForm.question_text,
+        question_type: questionForm.question_type,
+        points: Number(questionForm.points) || 10,
+        explanation: questionForm.explanation,
+        options: questionForm.options.map((opt, i) => ({
+          id: opt.id,
+          option_text: opt.option_text,
+          is_correct: opt.is_correct,
+          display_order: i,
+        })),
+      });
+
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else if (res.data) {
+        let updatedList: QuizQuestion[];
+        if (editingQuestion) {
+          updatedList = activeQuizQuestions.map((q) =>
+            q.id === res.data!.id ? res.data! : q
+          );
+        } else {
+          updatedList = [...activeQuizQuestions, res.data!];
+        }
+
+        setActiveQuizQuestions(updatedList);
+        setIsQuestionEditorOpen(false);
+        setEditingQuestion(null);
+
+        const newTotalPoints = updatedList.reduce(
+          (sum, q) => sum + (Number(q.points) || 0),
+          0
+        );
+
+        setQuizzes((prev) =>
+          prev.map((q) =>
+            q.id === activeQuizForQuestions.id
+              ? {
+                  ...q,
+                  question_count: updatedList.length,
+                  total_points: newTotalPoints,
+                }
+              : q
+          )
+        );
+        setActiveQuizForQuestions((prev) =>
+          prev
+            ? {
+                ...prev,
+                question_count: updatedList.length,
+                total_points: newTotalPoints,
+              }
+            : null
+        );
+
+        setStatusMessage({
+          type: 'success',
+          text: `Pertanyaan kuis berhasil ${editingQuestion ? 'diperbarui' : 'disimpan'}.`,
+        });
+        router.refresh();
+      }
+    });
+  };
+
+  const handleDeleteQuestion = (questionId: string) => {
+    if (!activeQuizForQuestions) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus soal ini?')) return;
+
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await deleteQuizQuestion(questionId, activeQuizForQuestions.id);
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else {
+        const updatedList = activeQuizQuestions.filter((q) => q.id !== questionId);
+        setActiveQuizQuestions(updatedList);
+
+        const newTotalPoints = updatedList.reduce(
+          (sum, q) => sum + (Number(q.points) || 0),
+          0
+        );
+
+        setQuizzes((prev) =>
+          prev.map((q) =>
+            q.id === activeQuizForQuestions.id
+              ? {
+                  ...q,
+                  question_count: updatedList.length,
+                  total_points: newTotalPoints,
+                }
+              : q
+          )
+        );
+        setActiveQuizForQuestions((prev) =>
+          prev
+            ? {
+                ...prev,
+                question_count: updatedList.length,
+                total_points: newTotalPoints,
+              }
+            : null
+        );
+
+        setStatusMessage({ type: 'success', text: 'Soal berhasil dihapus.' });
+        router.refresh();
+      }
+    });
+  };
+
+  const handleOpenEditQuizSettings = (quiz: CourseQuiz) => {
+    setEditingQuizSettings(quiz);
+    setQuizForm({
+      title: quiz.title,
+      description: quiz.description || '',
+      time_limit_minutes: quiz.time_limit_minutes?.toString() || '',
+      passing_score: quiz.passing_score.toString(),
+      max_attempts: quiz.max_attempts.toString(),
+      is_published: quiz.is_published,
+    });
+    setIsQuizModalOpen(true);
+  };
+
+  const handleOpenCreateQuiz = () => {
+    setEditingQuizSettings(null);
+    setQuizForm({
+      title: '',
+      description: '',
+      time_limit_minutes: '15',
+      passing_score: '70',
+      max_attempts: '3',
+      is_published: true,
+    });
+    setIsQuizModalOpen(true);
+  };
+
+  const handleTogglePublish = async (quizId: string, currentStatus: boolean) => {
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await toggleQuizPublishStatus(quizId, !currentStatus);
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else {
+        setQuizzes((prev) =>
+          prev.map((q) =>
+            q.id === quizId
+              ? {
+                  ...q,
+                  is_published: !currentStatus,
+                  status: !currentStatus ? 'published' : 'draft',
+                }
+              : q
+          )
+        );
+        if (activeQuizForQuestions?.id === quizId) {
+          setActiveQuizForQuestions((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  is_published: !currentStatus,
+                  status: !currentStatus ? 'published' : 'draft',
+                }
+              : null
+          );
+        }
+        setStatusMessage({
+          type: 'success',
+          text: !currentStatus
+            ? 'Kuis berhasil dipublikasikan ke publik!'
+            : 'Kuis dialihkan menjadi Draf (disembunyikan dari publik).',
+        });
+        router.refresh();
+      }
+    });
+  };
+
+  const handleDeleteQuizClick = (quiz: CourseQuiz) => {
+    if (
+      !confirm(
+        `Apakah Anda yakin ingin menghapus kuis "${quiz.title}" beserta seluruh soalnya?`
+      )
+    )
+      return;
+
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await deleteQuiz(quiz.id, course.id, currentTopic.id);
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else {
+        setQuizzes((prev) => prev.filter((q) => q.id !== quiz.id));
+        if (activeQuizForQuestions?.id === quiz.id) {
+          setActiveQuizForQuestions(null);
+        }
+        setStatusMessage({ type: 'success', text: 'Kuis berhasil dihapus.' });
+        router.refresh();
+      }
+    });
+  };
+
+  // Handlers for Quiz Creation & Settings
   const handleSaveQuiz = (e: React.FormEvent) => {
     e.preventDefault();
     if (!quizForm.title.trim()) return;
@@ -246,22 +681,71 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
     setStatusMessage(null);
     startTransition(async () => {
       const res = await saveQuizBasic({
+        id: editingQuizSettings?.id,
         course_id: course.id,
         weekly_topic_id: currentTopic.id,
         title: quizForm.title,
         description: quizForm.description,
-        time_limit_minutes: quizForm.time_limit_minutes ? parseInt(quizForm.time_limit_minutes, 10) : null,
-        passing_score: quizForm.passing_score ? parseFloat(quizForm.passing_score) : 70,
-        max_attempts: quizForm.max_attempts ? parseInt(quizForm.max_attempts, 10) : 3,
-        is_published: true,
+        time_limit_minutes: quizForm.time_limit_minutes
+          ? parseInt(quizForm.time_limit_minutes, 10)
+          : null,
+        passing_score: quizForm.passing_score
+          ? parseFloat(quizForm.passing_score)
+          : 70,
+        max_attempts: quizForm.max_attempts
+          ? parseInt(quizForm.max_attempts, 10)
+          : 3,
+        is_published: quizForm.is_published,
       });
 
       if (res.error) {
         setStatusMessage({ type: 'error', text: res.error });
       } else if (res.data) {
-        setQuizzes((prev) => [...prev, res.data!]);
-        setIsQuizModalOpen(false);
-        setStatusMessage({ type: 'success', text: 'Kuis berhasil dibuat. Silakan tambahkan pertanyaan kuis di panel admin.' });
+        const updatedOrNewQuiz: CourseQuiz = {
+          ...res.data!,
+          question_count: editingQuizSettings
+            ? editingQuizSettings.question_count || 0
+            : 0,
+          total_points: editingQuizSettings
+            ? editingQuizSettings.total_points || 0
+            : 0,
+        };
+
+        if (editingQuizSettings) {
+          setQuizzes((prev) =>
+            prev.map((q) => (q.id === updatedOrNewQuiz.id ? updatedOrNewQuiz : q))
+          );
+          setIsQuizModalOpen(false);
+          setEditingQuizSettings(null);
+          setStatusMessage({
+            type: 'success',
+            text: 'Pengaturan kuis berhasil diperbarui.',
+          });
+        } else {
+          setQuizzes((prev) => [...prev, updatedOrNewQuiz]);
+          setIsQuizModalOpen(false);
+          // Directly open Question Manager modal so author can immediately add questions!
+          setActiveQuizForQuestions(updatedOrNewQuiz);
+          setActiveQuizQuestions([]);
+          setEditingQuestion(null);
+          setQuestionForm({
+            question_text: '',
+            question_type: 'single_choice',
+            points: 10,
+            explanation: '',
+            options: [
+              { option_text: '', is_correct: true, display_order: 0 },
+              { option_text: '', is_correct: false, display_order: 1 },
+              { option_text: '', is_correct: false, display_order: 2 },
+              { option_text: '', is_correct: false, display_order: 3 },
+            ],
+          });
+          setIsQuestionEditorOpen(true);
+          setStatusMessage({
+            type: 'success',
+            text: 'Kuis berhasil dibuat! Silakan tulis soal pertama di bawah ini.',
+          });
+        }
         router.refresh();
       }
     });
@@ -617,7 +1101,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                 {isAdmin && (
                   <button
                     type="button"
-                    onClick={() => setIsQuizModalOpen(true)}
+                    onClick={handleOpenCreateQuiz}
                     className="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="size-3" />
@@ -639,9 +1123,22 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                            Evaluasi Mandiri
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                              Evaluasi Mandiri
+                            </span>
+                            {quiz.is_published ? (
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Globe className="size-2.5" />
+                                <span>Publik</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Lock className="size-2.5" />
+                                <span>Draf</span>
+                              </span>
+                            )}
+                          </div>
                           {quiz.time_limit_minutes && (
                             <span className="text-[11px] font-mono text-neutral-500 flex items-center gap-1">
                               <Clock className="size-3" />
@@ -649,7 +1146,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                             </span>
                           )}
                         </div>
-                        <h4 className="text-sm font-extrabold text-neutral-900 mt-1">
+                        <h4 className="text-sm font-extrabold text-neutral-900 mt-1.5">
                           {quiz.title}
                         </h4>
                         {quiz.description && (
@@ -662,7 +1159,15 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                       <div className="grid grid-cols-2 gap-2 text-[11px] text-neutral-600 py-2 border-y border-emerald-100/80">
                         <div>
                           <span className="text-neutral-400 block text-[10px]">Jumlah Soal:</span>
-                          <span className="font-bold text-neutral-900">{quiz.question_count || 0} Pertanyaan</span>
+                          <span
+                            className={`font-bold ${
+                              quiz.question_count && quiz.question_count > 0
+                                ? 'text-neutral-900'
+                                : 'text-amber-600'
+                            }`}
+                          >
+                            {quiz.question_count || 0} Pertanyaan
+                          </span>
                         </div>
                         <div>
                           <span className="text-neutral-400 block text-[10px]">Syarat Kelulusan:</span>
@@ -670,27 +1175,88 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <Link
-                          href={`/courses/${course.id}/weeks/${currentTopic.id}/quiz/${quiz.id}`}
-                          className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-emerald-600 transition shadow-xs"
-                        >
-                          <span>Mulai Kerjakan Kuis</span>
-                          <ChevronRight className="size-3.5" />
-                        </Link>
-                      </div>
-
-                      {isAdmin && (
-                        <div className="pt-2 text-center">
+                      <div className="space-y-2 pt-1">
+                        {quiz.question_count && quiz.question_count > 0 ? (
                           <Link
-                            href={`/admin/quizzes/${quiz.id}`}
-                            className="text-[11px] font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+                            href={`/courses/${course.id}/weeks/${currentTopic.id}/quiz/${quiz.id}`}
+                            className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-emerald-600 transition shadow-xs"
                           >
-                            <span>Kelola Soal di Admin</span>
-                            <ChevronRight className="size-3" />
+                            <span>Mulai Kerjakan Kuis</span>
+                            <ChevronRight className="size-3.5" />
                           </Link>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="w-full py-2 px-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-800 text-[11px] font-medium text-center">
+                            {isAdmin
+                              ? 'Soal kuis belum ditambahkan. Klik "Buat Soal Kuis" di bawah.'
+                              : 'Soal kuis sedang disiapkan oleh pengajar.'}
+                          </div>
+                        )}
+
+                        {isAdmin && (
+                          <div className="space-y-2 pt-1 border-t border-emerald-100/60">
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenQuestionManager(quiz)}
+                                className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${
+                                  !quiz.question_count || quiz.question_count === 0
+                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                    : 'bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-300'
+                                }`}
+                              >
+                                <Plus className="size-3.5" />
+                                <span>
+                                  {!quiz.question_count || quiz.question_count === 0
+                                    ? 'Buat Soal Kuis'
+                                    : 'Kelola Soal'}
+                                </span>
+                                {quiz.question_count ? (
+                                  <span className="ml-1 px-1.5 py-0.2 bg-neutral-200 text-neutral-800 text-[10px] rounded-full">
+                                    {quiz.question_count}
+                                  </span>
+                                ) : null}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditQuizSettings(quiz)}
+                                title="Pengaturan Kuis"
+                                className="p-1.5 rounded-xl border border-neutral-300 bg-white text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition cursor-pointer"
+                              >
+                                <Settings className="size-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteQuizClick(quiz)}
+                                title="Hapus Kuis"
+                                className="p-1.5 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-600 hover:bg-rose-100 transition cursor-pointer"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] text-neutral-500 px-1 pt-0.5">
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePublish(quiz.id, quiz.is_published)}
+                                className="hover:underline font-bold text-blue-600 cursor-pointer"
+                              >
+                                {quiz.is_published ? 'Ubah ke Draf' : 'Publikasikan ke Publik'}
+                              </button>
+
+                              <Link
+                                href={`/admin/quizzes/${quiz.id}`}
+                                target="_blank"
+                                className="hover:underline inline-flex items-center gap-1 text-neutral-500"
+                              >
+                                <span>Editor Penuh</span>
+                                <ExternalLink className="size-2.5" />
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -821,13 +1387,13 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
       )}
 
       {/* =========================================================================
-          ADMIN MODAL: CREATE QUIZ
+          ADMIN MODAL: CREATE OR EDIT QUIZ SETTINGS
          ========================================================================= */}
       {isQuizModalOpen && (
         <Modal
           isOpen={isQuizModalOpen}
           onClose={() => setIsQuizModalOpen(false)}
-          title="Buat Kuis Evaluasi Baru"
+          title={editingQuizSettings ? 'Pengaturan Kuis' : 'Buat Kuis Evaluasi Baru'}
           subtitle={`Minggu ${currentTopic.week_number} • ${course.name}`}
           maxWidth="lg"
         >
@@ -905,15 +1471,431 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
               </div>
             </div>
 
+            <div className="pt-2">
+              <label className="flex items-center gap-2.5 p-3 rounded-xl border border-neutral-200 bg-neutral-50/80 cursor-pointer hover:bg-neutral-100 transition">
+                <input
+                  type="checkbox"
+                  checked={quizForm.is_published}
+                  onChange={(e) => setQuizForm({ ...quizForm, is_published: e.target.checked })}
+                  className="size-4 rounded text-blue-600 focus:ring-blue-500"
+                />
+                <div>
+                  <span className="block font-bold text-xs text-neutral-900">
+                    Publikasikan ke Publik
+                  </span>
+                  <span className="block text-[11px] text-neutral-500">
+                    Mahasiswa dapat langsung melihat kuis ini pada materi mingguan.
+                  </span>
+                </div>
+              </label>
+            </div>
+
             <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-100">
               <SecondaryButton variant="outline" size="sm" onClick={() => setIsQuizModalOpen(false)}>
                 Batal
               </SecondaryButton>
               <PrimaryButton type="submit" variant="brand" size="sm" disabled={isPending}>
-                {isPending ? 'Menyimpan...' : 'Simpan Kuis'}
+                {isPending
+                  ? 'Menyimpan...'
+                  : editingQuizSettings
+                  ? 'Simpan Pengaturan'
+                  : 'Simpan & Buat Soal →'}
               </PrimaryButton>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* =========================================================================
+          ADMIN MODAL: QUESTION BUILDER & MANAGEMENT
+         ========================================================================= */}
+      {activeQuizForQuestions && (
+        <Modal
+          isOpen={!!activeQuizForQuestions}
+          onClose={() => {
+            if (isQuestionEditorOpen) {
+              if (confirm('Tutup formulir soal? Perubahan yang belum disimpan akan hilang.')) {
+                setIsQuestionEditorOpen(false);
+              }
+            } else {
+              setActiveQuizForQuestions(null);
+            }
+          }}
+          title={
+            isQuestionEditorOpen
+              ? editingQuestion
+                ? 'Edit Pertanyaan Kuis'
+                : 'Tambah Pertanyaan Baru'
+              : `Kelola Soal: ${activeQuizForQuestions.title}`
+          }
+          subtitle={`Minggu ${currentTopic.week_number} • ${course.name}`}
+          maxWidth="2xl"
+        >
+          {isLoadingQuestions ? (
+            <div className="py-12 text-center text-xs text-neutral-500 space-y-2">
+              <div className="inline-block size-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <p>Memuat daftar pertanyaan kuis...</p>
+            </div>
+          ) : isQuestionEditorOpen ? (
+            /* ===================================================================
+               QUESTION FORM (ADD / EDIT)
+               =================================================================== */
+            <form onSubmit={handleSaveQuestionSubmit} className="space-y-5 text-xs sm:text-sm">
+              {/* Question Type Buttons */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+                  Tipe Pertanyaan:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { type: 'single_choice' as QuestionType, label: 'Pilihan Tunggal' },
+                    { type: 'multiple_choice' as QuestionType, label: 'Pilihan Berganda' },
+                    { type: 'true_false' as QuestionType, label: 'Benar / Salah' },
+                  ].map((item) => (
+                    <button
+                      key={item.type}
+                      type="button"
+                      onClick={() => handleTypeChange(item.type)}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition text-center cursor-pointer ${
+                        questionForm.question_type === item.type
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-2xs'
+                          : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Question Text & Points */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                    Teks Pertanyaan / Soal: *
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={questionForm.question_text}
+                    onChange={(e) =>
+                      setQuestionForm({ ...questionForm, question_text: e.target.value })
+                    }
+                    placeholder="Tuliskan teks pertanyaan di sini..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 text-xs sm:text-sm"
+                  />
+                </div>
+
+                <div className="w-40">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                    Bobot Poin:
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={questionForm.points}
+                    onChange={(e) =>
+                      setQuestionForm({
+                        ...questionForm,
+                        points: parseInt(e.target.value, 10) || 10,
+                      })
+                    }
+                    className="w-full px-3 py-1.5 rounded-xl border border-neutral-300 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Options Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                      Pilihan Jawaban & Kunci: *
+                    </label>
+                    <p className="text-[11px] text-neutral-500">
+                      {questionForm.question_type === 'single_choice' &&
+                        'Klik radio untuk memilih 1 jawaban yang benar.'}
+                      {questionForm.question_type === 'multiple_choice' &&
+                        'Centang satu atau lebih kotak untuk jawaban yang benar.'}
+                      {questionForm.question_type === 'true_false' &&
+                        'Pilih pernyataan yang benar di antara Benar atau Salah.'}
+                    </p>
+                  </div>
+                  {questionForm.question_type !== 'true_false' &&
+                    questionForm.options.length < 6 && (
+                      <button
+                        type="button"
+                        onClick={handleAddOption}
+                        className="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="size-3" />
+                        <span>Tambah Opsi</span>
+                      </button>
+                    )}
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  {questionForm.options.map((opt, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition ${
+                        opt.is_correct
+                          ? 'border-emerald-300 bg-emerald-50/60'
+                          : 'border-neutral-200 bg-white'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleOptionCorrectToggle(idx)}
+                        title={opt.is_correct ? 'Kunci Jawaban Benar' : 'Jadikan Kunci Jawaban'}
+                        className={`size-6 rounded-full flex items-center justify-center shrink-0 transition cursor-pointer border ${
+                          opt.is_correct
+                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
+                            : 'bg-white border-neutral-300 text-transparent hover:border-emerald-400'
+                        }`}
+                      >
+                        <Check className="size-3.5" />
+                      </button>
+
+                      <span className="font-mono font-bold text-xs text-neutral-500 w-5 text-center shrink-0">
+                        {String.fromCharCode(65 + idx)}.
+                      </span>
+
+                      <input
+                        type="text"
+                        required
+                        disabled={questionForm.question_type === 'true_false'}
+                        value={opt.option_text}
+                        onChange={(e) => handleOptionTextChange(idx, e.target.value)}
+                        placeholder={`Teks pilihan jawaban ${String.fromCharCode(65 + idx)}...`}
+                        className="flex-1 px-3 py-1.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-blue-600 text-xs sm:text-sm bg-white"
+                      />
+
+                      {questionForm.question_type !== 'true_false' &&
+                        questionForm.options.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveOption(idx)}
+                            title="Hapus opsi"
+                            className="p-1 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Explanation (Optional) */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                  Pembahasan / Catatan Penjelasan (Opsional):
+                </label>
+                <textarea
+                  rows={2}
+                  value={questionForm.explanation}
+                  onChange={(e) =>
+                    setQuestionForm({ ...questionForm, explanation: e.target.value })
+                  }
+                  placeholder="Penjelasan mengapa jawaban tersebut benar untuk mahasiswa..."
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-xs"
+                />
+              </div>
+
+              {/* Form Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-100">
+                <SecondaryButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsQuestionEditorOpen(false)}
+                >
+                  Batal
+                </SecondaryButton>
+                <PrimaryButton type="submit" variant="brand" size="sm" disabled={isPending}>
+                  {isPending ? 'Menyimpan...' : 'Simpan Soal'}
+                </PrimaryButton>
+              </div>
+            </form>
+          ) : (
+            /* ===================================================================
+               QUESTIONS LIST VIEW
+               =================================================================== */
+            <div className="space-y-4">
+              {/* Header Stats Bar */}
+              <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="font-bold text-neutral-900">
+                    {activeQuizQuestions.length} Pertanyaan
+                  </span>
+                  <span className="text-neutral-300">•</span>
+                  <span className="font-bold text-emerald-700">
+                    {activeQuizQuestions.reduce(
+                      (sum, q) => sum + (Number(q.points) || 0),
+                      0
+                    )}{' '}
+                    Total Poin
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleTogglePublish(
+                        activeQuizForQuestions.id,
+                        activeQuizForQuestions.is_published
+                      )
+                    }
+                    className={`px-3 py-1 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 cursor-pointer ${
+                      activeQuizForQuestions.is_published
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                        : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                    }`}
+                  >
+                    {activeQuizForQuestions.is_published ? (
+                      <>
+                        <Globe className="size-3" />
+                        <span>Publik (Klik untuk Draf)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="size-3" />
+                        <span>Draf (Klik untuk Terbitkan)</span>
+                      </>
+                    )}
+                  </button>
+
+                  <PrimaryButton
+                    variant="brand"
+                    size="sm"
+                    icon={<Plus className="size-3.5" />}
+                    onClick={handleOpenAddQuestion}
+                  >
+                    Tambah Soal
+                  </PrimaryButton>
+                </div>
+              </div>
+
+              {/* Questions List */}
+              {activeQuizQuestions.length === 0 ? (
+                <div className="py-12 px-4 text-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/50 space-y-3">
+                  <HelpCircle className="size-10 text-neutral-400 mx-auto" />
+                  <div>
+                    <h4 className="font-bold text-neutral-800 text-sm">
+                      Belum Ada Soal Ditambahkan
+                    </h4>
+                    <p className="text-xs text-neutral-500 mt-1 max-w-md mx-auto">
+                      Kuis ini belum memiliki daftar pertanyaan. Mahasiswa belum dapat mengerjakan
+                      kuis sebelum minimal ada 1 soal.
+                    </p>
+                  </div>
+                  <PrimaryButton
+                    variant="brand"
+                    size="sm"
+                    icon={<Plus className="size-3.5" />}
+                    onClick={handleOpenAddQuestion}
+                  >
+                    Buat Pertanyaan Pertama
+                  </PrimaryButton>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                  {activeQuizQuestions.map((q, idx) => (
+                    <div
+                      key={q.id}
+                      className="p-4 rounded-2xl bg-white border border-neutral-200/90 shadow-2xs space-y-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono font-black text-xs bg-neutral-100 text-neutral-800 px-2 py-0.5 rounded-lg">
+                            Soal #{idx + 1}
+                          </span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md">
+                            {q.question_type === 'single_choice' && 'Pilihan Tunggal'}
+                            {q.question_type === 'multiple_choice' && 'Pilihan Berganda'}
+                            {q.question_type === 'true_false' && 'Benar / Salah'}
+                          </span>
+                          <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                            {q.points} Poin
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditQuestion(q)}
+                            className="p-1.5 rounded-lg text-neutral-600 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer"
+                            title="Edit Soal"
+                          >
+                            <Edit3 className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteQuestion(q.id)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                            title="Hapus Soal"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-xs sm:text-sm font-semibold text-neutral-900 leading-relaxed">
+                        {q.question_text}
+                      </p>
+
+                      <div className="space-y-1.5 pt-1">
+                        {q.options.map((opt, optIdx) => (
+                          <div
+                            key={opt.id || optIdx}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs border ${
+                              opt.is_correct
+                                ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900 font-semibold'
+                                : 'border-neutral-100 bg-neutral-50/50 text-neutral-700'
+                            }`}
+                          >
+                            <span className="font-mono font-bold text-[10px] text-neutral-500 w-4">
+                              {String.fromCharCode(65 + optIdx)}.
+                            </span>
+                            <span className="flex-1">{opt.option_text}</span>
+                            {opt.is_correct && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+                                <CheckCircle2 className="size-3 text-emerald-600" />
+                                <span>Kunci Jawaban</span>
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {q.explanation && (
+                        <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100 text-[11px] text-blue-900 leading-relaxed">
+                          <span className="font-bold">Pembahasan: </span>
+                          {q.explanation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
+                <p className="text-[11px] text-neutral-400">
+                  Perubahan pertanyaan tersimpan langsung ke basis data modul mingguan.
+                </p>
+                <SecondaryButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveQuizForQuestions(null)}
+                >
+                  Tutup
+                </SecondaryButton>
+              </div>
+            </div>
+          )}
         </Modal>
       )}
     </div>

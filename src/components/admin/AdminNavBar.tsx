@@ -3,13 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Layers, BellRing, BookOpen } from 'lucide-react';
+import { Layers, BellRing, BookOpen, Award } from 'lucide-react';
 
 export function AdminNavBar() {
   const pathname = usePathname();
 
   const isCoursesActive =
-    pathname === '/admin' || pathname.startsWith('/admin/courses') || pathname.startsWith('/admin/quizzes');
+    (pathname === '/admin' || pathname.startsWith('/admin/courses')) &&
+    !pathname.startsWith('/admin/quizzes');
+  const isQuizzesActive = pathname.startsWith('/admin/quizzes');
   const isAnnouncementsActive = pathname.startsWith('/admin/announcements');
   const isMaterialsActive = pathname.startsWith('/admin/materials');
 
@@ -19,6 +21,12 @@ export function AdminNavBar() {
       href: '/admin',
       icon: Layers,
       isActive: isCoursesActive,
+    },
+    {
+      name: 'Kuis & Evaluasi',
+      href: '/admin/quizzes',
+      icon: Award,
+      isActive: isQuizzesActive,
     },
     {
       name: 'Pengumuman & Agenda',

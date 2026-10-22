@@ -36,53 +36,42 @@ async function run() {
     });
   }
 
-  console.log('\n--- 2. Testing Materials Table & Timeframe Views ---');
-  const { data: materials, error: matError } = await supabase
-    .from('learning_materials')
-    .select('id, title, course_code, total_views');
+  console.log('\n--- 2. Testing Courses Table ---');
+  const { data: courses, error: courseError } = await supabase
+    .from('courses')
+    .select('id, name, code, is_published, download_count');
 
-  if (matError) {
-    console.error('Materials error:', matError);
+  if (courseError) {
+    console.error('Courses error:', courseError);
   } else {
-    console.log(`Successfully fetched ${materials.length} learning materials.`);
+    console.log(`Successfully fetched ${courses.length} courses from database.`);
+    courses.slice(0, 3).forEach((c) => {
+      console.log(` - ${c.code}: ${c.name} (${c.download_count || 0} visits)`);
+    });
   }
 
-  console.log('\n--- 3. Testing Timeframe Aggregations ---');
-  const { data: todayMaterials } = await supabase.rpc('get_popular_materials', {
-    timeframe: 'today',
-    item_limit: 3,
-  });
-  console.log('Top 3 Today (24h):', todayMaterials?.map((m) => `${m.course_code}: ${m.timeframe_views} views`));
+  console.log('\n--- 5. Testing Quizzes & Questions Structure ---');
+  const { data: testQuizzes, error: quizError } = await supabase
+    .from('course_quizzes')
+    .select('id, title, is_published, quiz_questions(id, question_text, points, quiz_question_options(id, option_text, is_correct))');
 
-  const { data: weekMaterials } = await supabase.rpc('get_popular_materials', {
-    timeframe: 'week',
-    item_limit: 3,
-  });
-  console.log('Top 3 Week (7d):', weekMaterials?.map((m) => `${m.course_code}: ${m.timeframe_views} views`));
-
-  const { data: monthMaterials } = await supabase.rpc('get_popular_materials', {
-    timeframe: 'month',
-    item_limit: 3,
-  });
-  console.log('Top 3 Month (30d):', monthMaterials?.map((m) => `${m.course_code}: ${m.timeframe_views} views`));
-
-  console.log('\n--- 4. Testing Visit Recording ---');
-  const targetId = materials[0].id;
-  console.log(`Recording new visit for material ${materials[0].course_code}...`);
-  const { error: visitError } = await supabase.rpc('record_material_view', {
-    p_material_id: targetId,
-  });
-  if (visitError) {
-    console.error('Visit error:', visitError);
+  if (quizError) {
+    console.error('Quiz fetch error:', quizError);
   } else {
-    console.log('Visit successfully recorded into material_views and total_views incremented!');
+    console.log(`Successfully verified ${testQuizzes.length} course quizzes in database:`);
+    testQuizzes.forEach((q) => {
+      console.log(` - [${q.is_published ? 'PUBLIK' : 'DRAF'}] ${q.title} (${q.quiz_questions?.length || 0} soal)`);
+    });
   }
 
-  console.log('\n--- 5. Testing HTTP Status of Pages ---');
+  console.log('\n--- 6. Testing HTTP Status of Pages ---');
   const routes = [
     { name: 'Home Page', url: 'http://localhost:3000/' },
     { name: 'Removed Laporan Page (Expect 404)', url: 'http://localhost:3000/laporan' },
     { name: 'Admin Login', url: 'http://localhost:3000/admin/login' },
+    { name: 'Weekly Learning Topic with Quizzes', url: 'http://localhost:3000/courses/78cca0d7-8075-4a26-988b-76815a6ebde8/weeks/95dd14c4-37af-41e1-b33f-854dd57fccb0' },
+    { name: 'Student Quiz Taker Page', url: 'http://localhost:3000/courses/78cca0d7-8075-4a26-988b-76815a6ebde8/weeks/95dd14c4-37af-41e1-b33f-854dd57fccb0/quiz/8c84d474-58f6-4a72-992b-77586a598bc6' },
+    { name: 'Admin Quizzes (Protected, Expect 307 Redirect)', url: 'http://localhost:3000/admin/quizzes' },
   ];
 
   for (const r of routes) {

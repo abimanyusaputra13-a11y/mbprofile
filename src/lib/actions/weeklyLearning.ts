@@ -589,6 +589,21 @@ export async function saveQuizQuestion(data: {
 
   if (optError) return { error: optError.message };
 
+  // Revalidate relevant pages
+  const { data: quizMeta } = await supabase
+    .from('course_quizzes')
+    .select('course_id, weekly_topic_id')
+    .eq('id', data.quiz_id)
+    .single();
+
+  if (quizMeta) {
+    revalidatePath(`/courses/${quizMeta.course_id}/weeks/${quizMeta.weekly_topic_id}`);
+    revalidatePath(`/courses/${quizMeta.course_id}/weeks/${quizMeta.weekly_topic_id}/quiz/${data.quiz_id}`);
+    revalidatePath(`/admin/courses/${quizMeta.course_id}`);
+  }
+  revalidatePath(`/admin/quizzes/${data.quiz_id}`);
+  revalidatePath('/admin/quizzes');
+
   return {
     data: {
       id: questionId!,
@@ -615,6 +630,13 @@ export async function deleteQuizQuestion(
   const supabase = await createClient();
   if (!supabase) return { success: false, error: 'Database unconfigured' };
 
+  // Query quiz to revalidate
+  const { data: quizMeta } = await supabase
+    .from('course_quizzes')
+    .select('course_id, weekly_topic_id')
+    .eq('id', quizId)
+    .single();
+
   const { error } = await supabase
     .from('quiz_questions')
     .delete()
@@ -622,7 +644,14 @@ export async function deleteQuizQuestion(
 
   if (error) return { success: false, error: error.message };
 
+  if (quizMeta) {
+    revalidatePath(`/courses/${quizMeta.course_id}/weeks/${quizMeta.weekly_topic_id}`);
+    revalidatePath(`/courses/${quizMeta.course_id}/weeks/${quizMeta.weekly_topic_id}/quiz/${quizId}`);
+    revalidatePath(`/admin/courses/${quizMeta.course_id}`);
+  }
   revalidatePath(`/admin/quizzes/${quizId}`);
+  revalidatePath('/admin/quizzes');
+
   return { success: true };
 }
 
@@ -647,7 +676,76 @@ export async function deleteQuiz(
 
   revalidatePath(`/courses/${courseId}/weeks/${topicId}`);
   revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath('/admin/quizzes');
   return { success: true };
+}
+
+export async function toggleQuizPublishStatus(
+  quizId: string,
+  isPublished: boolean
+): Promise<{ data?: CourseQuiz; error?: string }> {
+  await connection();
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { error: auth.error || 'Akses ditolak.' };
+
+  const supabase = await createClient();
+  if (!supabase) return { error: 'Database unconfigured' };
+
+  const { data: updated, error } = await supabase
+    .from('course_quizzes')
+    .update({
+      is_published: isPublished,
+      status: isPublished ? 'published' : 'draft',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', quizId)
+    .select()
+    .single();
+
+  if (error) return { error: error.message };
+
+  if (updated) {
+    revalidatePath(`/courses/${updated.course_id}/weeks/${updated.weekly_topic_id}`);
+    revalidatePath(`/admin/courses/${updated.course_id}`);
+    revalidatePath(`/admin/quizzes/${quizId}`);
+    revalidatePath('/admin/quizzes');
+  }
+
+  return { data: updated };
+}
+
+export async function getAllAdminQuizzes(): Promise<{
+  data?: CourseQuiz[];
+  error?: string;
+}> {
+  await connection();
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { error: auth.error || 'Akses ditolak.' };
+
+  const supabase = await createClient();
+  if (!supabase) return { error: 'Database unconfigured' };
+
+  const { data: quizzes, error } = await supabase
+    .from('course_quizzes')
+    .select(
+      '*, course:courses(id, name, code), weekly_topic:course_weekly_topics(id, week_number, topic_title), quiz_questions(id, points)'
+    )
+    .order('created_at', { ascending: false });
+
+  if (error) return { error: error.message };
+
+  const formatted: CourseQuiz[] = (quizzes || []).map((q) => {
+    const qList = (q.quiz_questions as { id: string; points: number }[]) || [];
+    const totalPoints = qList.reduce((sum, item) => sum + (Number(item.points) || 0), 0);
+    return {
+      ...q,
+      question_count: qList.length,
+      total_points: totalPoints,
+      quiz_questions: undefined,
+    };
+  });
+
+  return { data: formatted };
 }
 
 // ==============================================================================
