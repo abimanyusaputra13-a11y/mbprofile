@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CourseWithDetails } from '@/types/course';
@@ -50,6 +50,11 @@ interface CourseEditorClientProps {
 export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
   const router = useRouter();
   const [course, setCourse] = useState<CourseWithDetails>(initialCourse);
+
+  useEffect(() => {
+    setCourse(initialCourse);
+  }, [initialCourse]);
+
   const [activeTab, setActiveTab] = useState<'info' | 'assessments' | 'syllabus' | 'summaries' | 'references' | 'attachments'>('info');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -445,7 +450,8 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
               >
                 <option value="S1 Manajemen Bisnis">S1 Manajemen Bisnis</option>
                 <option value="S1 Bisnis Digital">S1 Bisnis Digital</option>
-                <option value="Mata Kuliah Bersama (FDKBD/ITS)">Mata Kuliah Bersama</option>
+                <option value="Mata Kuliah Bersama">Mata Kuliah Bersama</option>
+                <option value="Mata Kuliah Bersama (FDKBD/ITS)">Mata Kuliah Bersama (FDKBD/ITS)</option>
               </select>
             </div>
 

@@ -136,7 +136,8 @@ export default function NewCoursePage() {
               >
                 <option value="S1 Manajemen Bisnis">S1 Manajemen Bisnis</option>
                 <option value="S1 Bisnis Digital">S1 Bisnis Digital</option>
-                <option value="Mata Kuliah Bersama (FDKBD/ITS)">Mata Kuliah Bersama</option>
+                <option value="Mata Kuliah Bersama">Mata Kuliah Bersama</option>
+                <option value="Mata Kuliah Bersama (FDKBD/ITS)">Mata Kuliah Bersama (FDKBD/ITS)</option>
               </select>
             </div>
           </div>
