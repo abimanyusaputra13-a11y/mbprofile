@@ -8,9 +8,7 @@ import { SecondaryButton } from '@/components/ui/SecondaryButton';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { ResourceCard } from '@/components/cards/ResourceCard';
-import { AchievementCard } from '@/components/cards/AchievementCard';
-import { mockAchievements } from '@/data/achievements';
-import { Resource, Achievement, Announcement } from '@/types';
+import { Resource, Announcement } from '@/types';
 import { CourseWithDetails } from '@/types/course';
 import { mapCoursesToResources } from '@/lib/utils/resourceMapper';
 import { getAttachmentDownloadUrl } from '@/lib/actions/courses';
@@ -26,9 +24,7 @@ import {
   Cpu,
   Layers,
   Code2,
-  CheckCircle,
   ShieldCheck,
-  Building,
   BellRing,
   Download,
   Flame,
@@ -59,7 +55,6 @@ export function HomePageClient({
     error?: string;
   } | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
 
   // Directly map courses from the Materi dan Soal page pipeline
   const allResources: Resource[] = useMemo(() => {
@@ -112,7 +107,6 @@ export function HomePageClient({
     }
   };
 
-  const featuredAchievements = mockAchievements.slice(0, 2);
 
   return (
     <div className="flex flex-col gap-16 sm:gap-24 lg:gap-32 pb-16">
@@ -454,165 +448,7 @@ export function HomePageClient({
         </PageContainer>
       </section>
 
-      {/* =========================================================================
-          WALL OF FAME TEASER SECTION
-         ========================================================================= */}
-      <section>
-        <PageContainer>
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1 block">
-                Kebanggaan Komunitas
-              </span>
-              <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">
-                Wall of <span className="text-script text-blue-600 font-normal">Fame</span>
-              </h2>
-              <p className="text-sm sm:text-base text-neutral-600 font-light mt-2 max-w-xl">
-                Apresiasi untuk mahasiswa yang mengharumkan nama program studi di ajang kompetisi, publikasi, dan startup.
-              </p>
-            </div>
 
-            <Link href="/wall-of-fame">
-              <SecondaryButton variant="outline" size="sm" icon={<ArrowRight className="size-3.5" />}>
-                Lihat Semua Prestasi
-              </SecondaryButton>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredAchievements.map((ach) => (
-              <AchievementCard
-                key={ach.id}
-                achievement={ach}
-                onSelect={(selected) => setSelectedAchievement(selected)}
-              />
-            ))}
-          </div>
-        </PageContainer>
-      </section>
-
-      {/* =========================================================================
-          SUPPORTED BY & ACCREDITATION
-         ========================================================================= */}
-      <section className="pt-8">
-        <PageContainer>
-          <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">
-              Didukung <span className="text-script text-blue-600 font-normal">oleh</span> & Akreditasi
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-500 mt-2">
-              Bekerja sama dengan institusi akreditasi internasional dan ekosistem pendidikan bisnis terdepan.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            {[
-              { name: 'FIBAA Accreditation', sub: 'Periode 2025–2030 (Internasional)' },
-              { name: 'BAN-PT / LAMEMBA', sub: 'Akreditasi Unggul & Baik' },
-              { name: 'Laboratorium ESME', sub: 'Enterprise & Small-Medium Enterprise' },
-              { name: 'Laboratorium BDA', sub: 'Business Data & Decision Analytics' },
-              { name: 'Laboratorium BFE', sub: 'Business Finance & Valuation Ecosystem' },
-            ].map((inst, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-2xs hover:shadow-xs transition text-center min-w-[200px]"
-              >
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-700 w-fit mx-auto mb-2">
-                  <Building className="size-5" />
-                </div>
-                <p className="font-bold text-neutral-900 text-sm">{inst.name}</p>
-                <p className="text-[11px] text-neutral-500 mt-0.5">{inst.sub}</p>
-              </div>
-            ))}
-          </div>
-        </PageContainer>
-      </section>
-
-      {/* =========================================================================
-          VISION & MISSION ACCORDION / SUMMARY
-         ========================================================================= */}
-      <section>
-        <PageContainer>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bg-blue-900 text-white rounded-3xl p-8 sm:p-14">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-300 mb-2 block">
-                Komitmen Akademik ITS
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
-                Mencetak Pemimpin Bisnis Masa Depan Berwawasan Teknologi Global
-              </h2>
-              <p className="mt-4 text-xs sm:text-sm text-blue-100 font-light leading-relaxed">
-                Departemen Manajemen Bisnis ITS berkomitmen membina lulusan yang memiliki integritas ilmiah, keahlian manajerial komprehensif, kemampuan pemodelan kuantitatif, dan kapabilitas kewirausahaan adaptif di era disrupsi teknologi.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/who-are-we">
-                  <PrimaryButton variant="amber" size="md">
-                    Profil & Sejarah Departemen
-                  </PrimaryButton>
-                </Link>
-                <Link href="/courses">
-                  <SecondaryButton variant="ghost" size="md" className="text-white hover:bg-blue-800">
-                    Struktur Kurikulum
-                  </SecondaryButton>
-                </Link>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-blue-800/60 border border-blue-700/60">
-                <h3 className="font-bold text-sm sm:text-base text-amber-300 mb-1 flex items-center gap-2">
-                  <CheckCircle className="size-4 shrink-0 text-amber-300" />
-                  Visi Pendidikan
-                </h3>
-                <p className="text-xs text-blue-100 leading-relaxed">
-                  Menjadi pusat rujukan internasional dalam pengembangan pendidikan dan keilmuan manajemen bisnis berbasis sains, teknologi, dan kewirausahaan.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-blue-800/60 border border-blue-700/60">
-                <h3 className="font-bold text-sm sm:text-base text-amber-300 mb-1 flex items-center gap-2">
-                  <CheckCircle className="size-4 shrink-0 text-amber-300" />
-                  Misi Utama
-                </h3>
-                <p className="text-xs text-blue-100 leading-relaxed">
-                  Menyelenggarakan pembelajaran berkualitas tinggi, mengembangkan riset terapan bernilai komersial, dan memfasilitasi pengabdian masyarakat guna mendorong daya saing industri nasional.
-                </p>
-              </div>
-            </div>
-          </div>
-        </PageContainer>
-      </section>
-
-      {/* =========================================================================
-          CALL TO ACTION BANNER
-         ========================================================================= */}
-      <section>
-        <PageContainer>
-          <div className="relative overflow-hidden p-8 sm:p-12 rounded-3xl bg-neutral-900 text-white text-center">
-            <div className="max-w-2xl mx-auto space-y-4">
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight">
-                Siap Mengembangkan Potensi Bisnis Anda?
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                Manfaatkan modul terbuka, silabus komprehensif, dan bank soal yang telah dikurasi oleh tim dosen dan divisi akademik Departemen Manajemen Bisnis ITS.
-              </p>
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                <Link href="/materi-soal">
-                  <PrimaryButton variant="brand" size="md" icon={<ArrowRight className="size-4" />}>
-                    Jelajahi Repositori Materi
-                  </PrimaryButton>
-                </Link>
-                <Link href="/dosen">
-                  <SecondaryButton variant="outline" size="md" className="border-neutral-700 text-white hover:bg-neutral-800">
-                    Hubungi Dosen Pembimbing
-                  </SecondaryButton>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </PageContainer>
-      </section>
 
       {/* =========================================================================
           PREVIEW MODAL (REAL COURSE / SYLLABUS / WEEKLY MODULES PREVIEW)
@@ -789,58 +625,7 @@ export function HomePageClient({
         </Modal>
       )}
 
-      {/* =========================================================================
-          ACHIEVEMENT DETAIL MODAL
-         ========================================================================= */}
-      {selectedAchievement && (
-        <Modal
-          isOpen={!!selectedAchievement}
-          onClose={() => setSelectedAchievement(null)}
-          title={selectedAchievement.title}
-          subtitle={`${selectedAchievement.award} • ${selectedAchievement.year}`}
-          maxWidth="lg"
-        >
-          <div className="space-y-4 text-xs sm:text-sm text-neutral-700">
-            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200">
-              <p className="font-bold text-amber-950 text-sm mb-1">
-                Penyelenggara: {selectedAchievement.eventOrganizer}
-              </p>
-              <p className="text-amber-900/90 text-xs">
-                Tingkat: <span className="font-semibold">{selectedAchievement.level}</span> | Kategori: <span className="font-semibold">{selectedAchievement.category}</span>
-              </p>
-            </div>
 
-            <div>
-              <p className="font-bold text-neutral-900 mb-1">Anggota Tim / Penerima:</p>
-              <p className="text-neutral-600 font-mono text-xs bg-neutral-50 p-2.5 rounded-xl border border-neutral-200">
-                {selectedAchievement.members.join(' • ')}
-              </p>
-            </div>
-
-            {selectedAchievement.advisor && (
-              <div>
-                <p className="font-bold text-neutral-900 mb-1">Dosen Pembimbing / Advisor:</p>
-                <p className="text-neutral-600">{selectedAchievement.advisor}</p>
-              </div>
-            )}
-
-            <div>
-              <p className="font-bold text-neutral-900 mb-1">Deskripsi &amp; Capaian Proyek:</p>
-              <p className="text-neutral-600 leading-relaxed">{selectedAchievement.description}</p>
-            </div>
-
-            <div className="flex justify-end pt-3">
-              <SecondaryButton
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedAchievement(null)}
-              >
-                Tutup
-              </SecondaryButton>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 }
