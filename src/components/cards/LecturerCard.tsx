@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Lecturer } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { getLecturerPhotoUrl, getLecturerInitials, getLecturerInterests, getLecturerRoleBadge } from '@/lib/lecturers';
@@ -36,12 +37,12 @@ export const LecturerCard: React.FC<LecturerCardProps> = ({ lecturer, onSelect }
         <div className="flex items-start gap-4 mb-4">
           <div className="relative size-20 sm:size-22 rounded-2xl overflow-hidden bg-neutral-100 shrink-0 ring-4 ring-blue-50/80 border border-neutral-200/70 shadow-sm group-hover:scale-105 transition-transform duration-300">
             {photoUrl && !imageError ? (
-              <img
+              <Image
                 src={photoUrl}
                 alt={`Foto profil ${lecturer.name}`}
-                className="w-full h-full object-cover object-top"
-                loading="lazy"
-                decoding="async"
+                fill
+                sizes="(max-width: 640px) 80px, 88px"
+                className="object-cover object-top"
                 onError={() => setImageError(true)}
               />
             ) : (

@@ -37,6 +37,23 @@ export async function createClient() {
   });
 }
 
+// Server-only anonymous client for public read-only static/ISR queries (no cookies or connection bailouts)
+export function createPublicClient() {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+  if (!rawUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return createSupabaseClient(normalizeUrl(rawUrl), supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
 // Server-only privileged client (using service role key, if provided)
 export function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';

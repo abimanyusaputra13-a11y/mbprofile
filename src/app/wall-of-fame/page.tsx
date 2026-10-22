@@ -25,7 +25,6 @@ import {
   Users,
   GraduationCap,
   Calendar,
-  AlertCircle,
   PlusCircle,
   CheckCircle,
   RotateCcw,
@@ -101,24 +100,6 @@ export default function WallOfFamePage() {
         </PageContainer>
       </section>
 
-      {/* =========================================================================
-          SAMPLE DATA DISCLAIMER BANNER
-         ========================================================================= */}
-      <section>
-        <PageContainer>
-          <div className="p-4 rounded-2xl bg-amber-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-amber-900 flex items-start gap-3">
-            <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-amber-950">
-                Pemberitahuan Sumber Rekor Prestasi:
-              </p>
-              <p className="text-amber-800/90 mt-0.5 leading-relaxed">
-                Entri pencapaian mahasiswa pada laman ini bersumber dari register resmi Mahasiswa Berprestasi Departemen Manajemen Bisnis ITS (its.ac.id/mb/mahasiswa/mahasiswa-berprestasi/). Rekor mencakup capaian tingkat nasional dan internasional terpilih periode 2024–2026.
-              </p>
-            </div>
-          </div>
-        </PageContainer>
-      </section>
 
       {/* =========================================================================
           FILTER & SEARCH CONTROLS

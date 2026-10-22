@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeading } from '@/components/ui/PageHeading';
 import { SearchInput } from '@/components/ui/SearchInput';
@@ -23,8 +24,6 @@ import {
   Calendar,
   ExternalLink,
   RotateCcw,
-  CheckCircle2,
-  Globe,
 } from 'lucide-react';
 
 interface DaftarDosenClientProps {
@@ -124,25 +123,6 @@ export function DaftarDosenClient({
             accentWord="Manajemen Bisnis"
             description="Mengenal jajaran dosen, pimpinan departemen, fokus riset penelitian, dan publikasi ilmiah resmi Departemen Manajemen Bisnis, Institut Teknologi Sepuluh Nopember (ITS)."
           />
-
-          {/* Source Attribution & Data Badge */}
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80">
-              <CheckCircle2 className="size-3.5 text-emerald-600" />
-              <span>{isLiveDb ? 'Data Terhubung Langsung ke Supabase' : 'Data Lokal Terverifikasi'}</span>
-            </span>
-
-            <a
-              href="https://www.its.ac.id/mb/dosen-staff/daftar-dosen/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 hover:text-blue-600 transition underline underline-offset-2"
-            >
-              <Globe className="size-3.5 text-neutral-400" />
-              <span>Sumber Resmi: its.ac.id/mb/dosen-staff</span>
-              <ExternalLink className="size-2.5 opacity-60" />
-            </a>
-          </div>
         </PageContainer>
       </section>
 
@@ -288,10 +268,12 @@ export function DaftarDosenClient({
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-white rounded-3xl border border-blue-200/80 shadow-xs">
               <div className="relative size-24 sm:size-28 rounded-2xl overflow-hidden bg-neutral-100 shrink-0 ring-4 ring-white shadow-md border border-neutral-200">
                 {modalPhotoUrl && !modalImageError ? (
-                  <img
+                  <Image
                     src={modalPhotoUrl}
                     alt={selectedLecturer.name}
-                    className="w-full h-full object-cover object-top"
+                    fill
+                    sizes="(max-width: 640px) 96px, 112px"
+                    className="object-cover object-top"
                     onError={() => setModalImageError(true)}
                   />
                 ) : (

@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { Lecturer } from '@/types';
 import { mockLecturers } from '@/data/lecturers';
 
@@ -14,7 +14,7 @@ export async function getPublicLecturers(): Promise<{
   isLiveDb: boolean;
 }> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     if (!supabase) {
       return { data: mockLecturers, isLiveDb: false };
     }

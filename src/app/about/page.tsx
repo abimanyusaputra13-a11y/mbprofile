@@ -21,7 +21,6 @@ import {
   ShieldCheck,
   Building,
   CheckCircle2,
-  AlertCircle,
   ExternalLink,
   GraduationCap,
 } from 'lucide-react';
@@ -144,7 +143,7 @@ export default function AboutPage() {
       </section>
 
       {/* =========================================================================
-          VISION & MISSION (WITH EXPLICIT PROVISIONAL PLACEHOLDER NOTICE)
+          VISION & MISSION
          ========================================================================= */}
       <section className="py-16 sm:py-24 border-y border-neutral-200/70">
         <PageContainer>
@@ -156,17 +155,6 @@ export default function AboutPage() {
               titleSuffix="Akademik"
               description="Arah tujuan jangka panjang dan komitmen strategis dalam tridharma perguruan tinggi."
             />
-
-            {/* Clear provisional placeholder notice */}
-            <div className="mb-8 p-4 rounded-2xl bg-amber-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-amber-900 flex items-start gap-3">
-              <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-amber-950">Catatan Konten Contoh Resmi:</p>
-                <p className="mt-0.5 leading-relaxed text-amber-800">
-                  {aboutData.vision.isProvisionalNotice}
-                </p>
-              </div>
-            </div>
 
             {/* Vision Card */}
             <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black shadow-[6px_6px_0px_0px_#000] mb-8">

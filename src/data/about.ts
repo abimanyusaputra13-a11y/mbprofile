@@ -33,9 +33,7 @@ export const aboutData = {
   vision: {
     title: 'Visi Departemen',
     statement:
-      'To become a world-class Department of Business Management that contributes to national self-reliance and serves as a reference in education, research, community service, and innovation development in technology-based business and management, particularly in supporting industry and producing high-quality future business leaders and researchers.',
-    isProvisionalNotice:
-      '(Ringkasan terjemahan resmi visi Departemen Manajemen Bisnis ITS berdasarkan publikasi resmi https://www.its.ac.id/mb/en/about-us/our-vision/)'
+      'To become a world-class Department of Business Management that contributes to national self-reliance and serves as a reference in education, research, community service, and innovation development in technology-based business and management, particularly in supporting industry and producing high-quality future business leaders and researchers.'
   },
   mission: [
     {

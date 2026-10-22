@@ -1,4 +1,5 @@
 import React from 'react';
+import { cacheLife } from 'next/cache';
 import { getPublicLecturers } from '@/lib/actions/lecturers';
 import { DaftarDosenClient } from './DaftarDosenClient';
 
@@ -8,9 +9,10 @@ export const metadata = {
     'Profil resmi jajaran dosen, pimpinan departemen, bidang fokus riset, Google Scholar, dan Scopus Departemen Manajemen Bisnis ITS.',
 };
 
-export const instant = false;
-
 export default async function DaftarDosenPage() {
+  'use cache';
+  cacheLife('hours');
+
   const { data: lecturers, isLiveDb, error } = await getPublicLecturers();
 
   return (
