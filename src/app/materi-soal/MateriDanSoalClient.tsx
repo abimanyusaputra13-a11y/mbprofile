@@ -175,11 +175,8 @@ export function MateriDanSoalClient({
       <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
-            badge="Repositori Terbuka"
-            badgeVariant="yellow"
             titlePrefix="Materi &"
             accentWord="Bank Soal"
-            titleSuffix="Akademik"
             description="Pusat kurasi sumber belajar: kumpulan catatan kuliah, slide dosen, modul praktikum, dan arsip Ujian Tengah/Akhir Semester."
           >
             <div className="flex flex-wrap items-center justify-center gap-3">

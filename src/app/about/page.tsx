@@ -37,8 +37,6 @@ export default function AboutPage() {
       <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
-            badge="Profil Departemen & Komunitas"
-            badgeVariant="yellow"
             titlePrefix="Who Are"
             accentWord="We?"
             description="Mengenal lebih dekat identitas, sejarah, visi-misi, serta ekosistem akademik dan riset Departemen Manajemen Bisnis ITS."

@@ -120,11 +120,8 @@ export function DaftarDosenClient({
       <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
-            badge="Profil Dosen & Minat Riset MB-ITS"
-            badgeVariant="yellow"
-            titlePrefix="Direktori"
-            accentWord="Dosen"
-            titleSuffix="Manajemen Bisnis ITS"
+            titlePrefix="Direktori Dosen"
+            accentWord="Manajemen Bisnis"
             description="Mengenal jajaran dosen, pimpinan departemen, fokus riset penelitian, dan publikasi ilmiah resmi Departemen Manajemen Bisnis, Institut Teknologi Sepuluh Nopember (ITS)."
           />
 

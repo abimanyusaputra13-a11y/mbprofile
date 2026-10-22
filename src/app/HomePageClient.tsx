@@ -144,11 +144,7 @@ export function HomePageClient({
             </div>
 
             {/* Main Display Title */}
-            <div className="relative max-w-5xl">
-              <span className="inline-block rounded-full bg-amber-300 text-neutral-950 font-bold px-4 py-1.5 text-xs uppercase tracking-wider mb-6 shadow-2xs">
-                Portal Resmi Akademik & Kemahasiswaan
-              </span>
-
+            <div className="relative max-w-5xl pt-2 sm:pt-4">
               <h1 className="text-center font-bold tracking-tight text-neutral-900 leading-[0.95]">
                 <span className="block text-[clamp(2.5rem,7vw,6.5rem)] font-bold">
                   Welcome to

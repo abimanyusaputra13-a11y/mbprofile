@@ -28,7 +28,7 @@ export default async function CoursesDirectoryPage() {
   const { data: courses, error } = await getPublicPublishedCourses();
 
   return (
-    <div className="py-10 bg-neutral-50/50 min-h-screen">
+    <div className="py-10 min-h-screen">
       <PageContainer>
         <div className="space-y-8">
           {/* Header Banner */}

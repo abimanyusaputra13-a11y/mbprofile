@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge } from './Badge';
 
 interface PageHeadingProps {
   badge?: string;
@@ -14,8 +13,6 @@ interface PageHeadingProps {
 }
 
 export const PageHeading: React.FC<PageHeadingProps> = ({
-  badge,
-  badgeVariant = 'yellow',
   titlePrefix,
   accentWord,
   titleSuffix,
@@ -28,26 +25,33 @@ export const PageHeading: React.FC<PageHeadingProps> = ({
 
   return (
     <div className={`relative flex flex-col ${alignClass} py-12 sm:py-16 md:py-20 ${className}`}>
-      {badge && (
-        <div className="mb-4">
-          <Badge variant={badgeVariant} size="md">
-            {badge}
-          </Badge>
-        </div>
-      )}
+      {/* Yellow / custom badge removed per user request for a cleaner, unified display */}
 
-      <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-neutral-900 leading-[1.08] max-w-4xl">
-        {titlePrefix && <span>{titlePrefix} </span>}
-        {accentWord && (
-          <span className="text-script text-blue-600 px-1 font-normal">
-            {accentWord}
+      <h1 className="text-center font-bold tracking-tight text-neutral-900 leading-[0.95] max-w-5xl">
+        {titlePrefix && (
+          <span className="block text-[clamp(2.5rem,7vw,6.5rem)] font-bold">
+            {titlePrefix}
           </span>
         )}
-        {titleSuffix && <span> {titleSuffix}</span>}
+        {accentWord && (
+          <span className="text-script block text-[clamp(2.75rem,8vw,7.5rem)] text-blue-600 font-normal mt-1">
+            {accentWord}
+            {titleSuffix && (
+              <span className="not-italic font-bold text-neutral-900 ml-3">
+                {titleSuffix}
+              </span>
+            )}
+          </span>
+        )}
+        {!accentWord && titleSuffix && (
+          <span className="block text-[clamp(2.5rem,7vw,6.5rem)] font-bold mt-1">
+            {titleSuffix}
+          </span>
+        )}
       </h1>
 
       {description && (
-        <p className="mt-4 sm:mt-6 text-base sm:text-xl text-neutral-600 max-w-2xl font-light leading-relaxed">
+        <p className="mt-6 sm:mt-8 text-base sm:text-xl text-neutral-600 max-w-2xl font-light leading-relaxed">
           {description}
         </p>
       )}

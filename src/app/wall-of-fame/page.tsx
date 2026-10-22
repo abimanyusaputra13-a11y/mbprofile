@@ -80,11 +80,8 @@ export default function WallOfFamePage() {
       <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
-            badge="Hall of Accomplishments"
-            badgeVariant="yellow"
             titlePrefix="Wall of"
             accentWord="Fame"
-            titleSuffix="Manajemen Bisnis ITS"
             description="Etalase apresiasi dedikasi, kejuaraan kompetisi, kepemimpinan, serta capaian prestasi terbaik mahasiswa Departemen Manajemen Bisnis ITS."
           >
             <div className="flex flex-wrap items-center justify-center gap-3">
