@@ -3,8 +3,6 @@ import { getPublicPublishedCourses } from '@/lib/actions/courses';
 import { getPublicPublishedMaterials } from '@/lib/actions/materials';
 import { MateriDanSoalClient } from './MateriDanSoalClient';
 
-export const instant = false;
-
 export default async function MateriDanSoalPage() {
   const [coursesRes, materialsRes] = await Promise.all([
     getPublicPublishedCourses(),

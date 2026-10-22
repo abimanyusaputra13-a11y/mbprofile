@@ -9,8 +9,6 @@ export const metadata = {
   description: 'Panel moderasi dan persetujuan pengajuan prestasi mahasiswa Departemen Manajemen Bisnis ITS',
 };
 
-export const instant = false;
-
 export default async function AdminAchievementsPage() {
   await connection();
   const { data: achievements, error } = await getAdminAchievements();

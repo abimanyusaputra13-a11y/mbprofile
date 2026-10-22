@@ -21,8 +21,6 @@ export const metadata = {
     'Akses silabus perkuliahan, topik mingguan, materi bacaan, berkas lampiran, dan kuis evaluasi.',
 };
 
-export const instant = false;
-
 export default async function CoursesDirectoryPage() {
   await connection();
   const { data: courses, error } = await getPublicPublishedCourses();
@@ -130,6 +128,7 @@ export default async function CoursesDirectoryPage() {
 
                       <Link
                         href={`/courses/${course.id}`}
+                        prefetch={false}
                         className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-neutral-900 group-hover:bg-blue-600 text-white font-bold text-xs transition border border-black shadow-[2px_2px_0px_0px_#000]"
                       >
                         <span>Buka Silabus & Modul</span>

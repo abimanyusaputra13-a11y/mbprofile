@@ -11,8 +11,6 @@ export const metadata = {
   description: 'Daftar dan kelola kuis evaluasi mingguan di seluruh mata kuliah',
 };
 
-export const instant = false;
-
 export default async function AdminQuizzesListPage() {
   await connection();
   const auth = await verifyAdminStatus();

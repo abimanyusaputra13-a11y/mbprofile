@@ -4,8 +4,6 @@ import { getPublicPublishedMaterials } from '@/lib/actions/materials';
 import { getPublicAnnouncements } from '@/lib/actions/announcements';
 import { HomePageClient } from './HomePageClient';
 
-export const instant = false;
-
 export default async function HomePage() {
   const [coursesRes, materialsRes, announcementsRes] = await Promise.all([
     getPublicPublishedCourses(),

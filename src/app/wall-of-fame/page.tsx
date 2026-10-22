@@ -1,4 +1,5 @@
 import React from 'react';
+import { cacheLife } from 'next/cache';
 import { getPublicAchievements } from '@/lib/actions/achievements';
 import { WallOfFameClient } from './WallOfFameClient';
 
@@ -8,9 +9,10 @@ export const metadata = {
     'Etalase apresiasi dedikasi, kejuaraan kompetisi, kepemimpinan, serta capaian prestasi terbaik mahasiswa Departemen Manajemen Bisnis ITS.',
 };
 
-export const instant = false;
-
 export default async function WallOfFamePage() {
+  'use cache';
+  cacheLife('hours');
+
   const { data: achievements, isLiveDb } = await getPublicAchievements();
 
   return (

@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import { getStudentQuiz } from '@/lib/actions/weeklyLearning';
 import { QuizTakerClient } from './QuizTakerClient';
 
-export const instant = false;
-
 interface QuizPageProps {
   params: Promise<{
     id: string;

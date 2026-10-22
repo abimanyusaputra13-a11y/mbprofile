@@ -4,8 +4,6 @@ import { connection } from 'next/server';
 import { getWeeklyTopicLearningData } from '@/lib/actions/weeklyLearning';
 import { WeeklyLearningClient } from './WeeklyLearningClient';
 
-export const instant = false;
-
 interface WeeklyTopicPageProps {
   params: Promise<{ id: string; topicId: string }>;
 }

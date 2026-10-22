@@ -21,8 +21,6 @@ import {
   Lock,
 } from 'lucide-react';
 
-export const instant = false;
-
 interface CoursePageProps {
   params: Promise<{ id: string }>;
 }

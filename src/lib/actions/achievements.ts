@@ -2,7 +2,7 @@
 
 import { connection } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient, createPublicClient } from '@/lib/supabase/server';
 import { verifyAdminStatus } from '@/lib/supabase/auth';
 import { Achievement, AchievementCategory, AchievementLevel } from '@/types';
 import { mockAchievements } from '@/data/achievements';
@@ -43,7 +43,8 @@ export async function getPublicAchievements(): Promise<{
 }> {
   try {
     const adminClient = createAdminClient();
-    const supabase = adminClient || (await createClient());
+    const publicClient = createPublicClient();
+    const supabase = adminClient || publicClient || (await createClient());
 
     if (!supabase) {
       return { data: mockAchievements, isLiveDb: false };

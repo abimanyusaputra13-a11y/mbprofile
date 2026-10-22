@@ -12,8 +12,6 @@ export const metadata = {
   description: 'Owner-only course content management dashboard',
 };
 
-export const instant = false;
-
 export default async function AdminLayout({
   children,
 }: {

@@ -4,8 +4,6 @@ import { verifyAdminStatus } from '@/lib/supabase/auth';
 import { getAdminQuizDetails } from '@/lib/actions/weeklyLearning';
 import { QuizEditorClient } from './QuizEditorClient';
 
-export const instant = false;
-
 interface AdminQuizPageProps {
   params: Promise<{
     quizId: string;
