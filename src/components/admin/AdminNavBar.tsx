@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Layers, BellRing, BookOpen, Award } from 'lucide-react';
+import { Layers, BellRing, BookOpen, Award, Trophy } from 'lucide-react';
 
 export function AdminNavBar() {
   const pathname = usePathname();
@@ -14,6 +14,7 @@ export function AdminNavBar() {
   const isQuizzesActive = pathname.startsWith('/admin/quizzes');
   const isAnnouncementsActive = pathname.startsWith('/admin/announcements');
   const isMaterialsActive = pathname.startsWith('/admin/materials');
+  const isAchievementsActive = pathname.startsWith('/admin/achievements');
 
   const navItems = [
     {
@@ -39,6 +40,12 @@ export function AdminNavBar() {
       href: '/admin/materials',
       icon: BookOpen,
       isActive: isMaterialsActive,
+    },
+    {
+      name: 'Kurasi Prestasi Mahasiswa',
+      href: '/admin/achievements',
+      icon: Trophy,
+      isActive: isAchievementsActive,
     },
   ];
 

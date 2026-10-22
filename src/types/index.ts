@@ -34,6 +34,7 @@ export interface Resource {
   total_views?: number;
   timeframe_views?: number;
   is_published?: boolean;
+  verificationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   courseDetails?: CourseWithDetails;
 }
 
@@ -95,6 +96,11 @@ export interface Achievement {
   description: string;
   eventOrganizer: string;
   badgeVariant?: 'gold' | 'blue' | 'purple' | 'green';
+  certificateStorageKey?: string | null;
+  certificateUrl?: string | null;
+  verificationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type DocumentCategory =

@@ -240,6 +240,195 @@ export async function createMaterial(input: MaterialInput): Promise<{ success: b
 }
 
 /**
+ * Public action: submit student/contributor material from /materi-soal
+ * Uses admin client to bypass RLS and persist directly into learning_materials.
+ */
+export async function submitPublicMaterial(
+  formData: FormData
+): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const title = (formData.get('title') as string || '').trim();
+    const courseName = (formData.get('courseName') as string || '').trim();
+    const type = (formData.get('type') as ResourceType) || 'Catatan Kuliah';
+    const author = (formData.get('author') as string || '').trim();
+    const file = formData.get('file') as File | null;
+
+    if (!title || !courseName || !author) {
+      return { success: false, error: 'Judul, Mata Kuliah, dan Nama Kontributor wajib diisi.' };
+    }
+
+    const adminClient = createAdminClient();
+    const supabase = adminClient || (await createClient());
+
+    if (!supabase) {
+      return { success: false, error: 'Database Supabase tidak terhubung.' };
+    }
+
+    // Try finding course code and semester from courses table
+    let courseCode = 'MB1000';
+    let semester = 1;
+
+    try {
+      const { data: matchedCourse } = await supabase
+        .from('courses')
+        .select('code, semester')
+        .ilike('name', courseName)
+        .maybeSingle();
+
+      if (matchedCourse) {
+        courseCode = matchedCourse.code || courseCode;
+        semester = matchedCourse.semester || semester;
+      }
+    } catch {
+      // Use fallback defaults if courses query fails
+    }
+
+    let fileFormat: FileFormat = 'PDF';
+    let fileSize = '3.5 MB';
+    let sampleUrl = '';
+
+    if (file && file.size > 0) {
+      const ext = file.name.split('.').pop()?.toUpperCase() || 'PDF';
+      if (['PDF', 'DOCX', 'DOC', 'XLSX', 'XLS', 'ZIP', 'IPYNB'].includes(ext)) {
+        fileFormat = ext as FileFormat;
+      }
+      fileSize = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const storagePath = `materials/${Date.now()}_${sanitizedName}`;
+
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const { error: uploadError } = await supabase.storage
+          .from('course-attachments')
+          .upload(storagePath, buffer, {
+            contentType: file.type || 'application/octet-stream',
+            upsert: true,
+          });
+
+        if (!uploadError) {
+          sampleUrl = storagePath;
+        }
+      } catch (uploadErr) {
+        console.error('Storage upload error (proceeding with record creation):', uploadErr);
+      }
+    }
+
+    const { data, error: insertError } = await supabase
+      .from('learning_materials')
+      .insert({
+        title,
+        course_code: courseCode,
+        course_name: courseName,
+        semester,
+        type,
+        academic_year: '2025/2026',
+        file_format: fileFormat,
+        file_size: fileSize,
+        author,
+        description: `Materi kontribusi dari ${author} untuk mata kuliah ${courseName}.`,
+        sample_url: sampleUrl,
+        tags: [courseName, type],
+        is_published: false,
+        verification_status: 'PENDING',
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      return { success: false, error: insertError.message };
+    }
+
+    revalidatePath('/');
+    revalidatePath('/materi-soal');
+    revalidatePath('/admin/materials');
+    return { success: true, data };
+  } catch (err: any) {
+    console.error('Error submitting public material:', err);
+    return { success: false, error: err.message || 'Terjadi kesalahan pada server saat mengirim berkas.' };
+  }
+}
+
+/**
+ * Admin action: review and approve or reject a learning material
+ */
+export async function reviewMaterial(
+  id: string,
+  newStatus: 'APPROVED' | 'REJECTED'
+): Promise<{ success: boolean; error?: string }> {
+  await connection();
+  try {
+    const auth = await verifyAdminStatus();
+    if (!auth.isAdmin) {
+      return { success: false, error: 'Akses ditolak.' };
+    }
+
+    const adminClient = createAdminClient();
+    const supabase = adminClient || (await createClient());
+
+    if (!supabase) {
+      return { success: false, error: 'Database tidak tersedia.' };
+    }
+
+    const isPublished = newStatus === 'APPROVED';
+
+    const { error } = await supabase
+      .from('learning_materials')
+      .update({
+        verification_status: newStatus,
+        is_published: isPublished,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/');
+    revalidatePath('/materi-soal');
+    revalidatePath('/admin/materials');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Get signed download URL for uploaded material file
+ */
+export async function getMaterialDownloadUrl(
+  storagePath: string
+): Promise<{ url?: string; error?: string }> {
+  try {
+    if (!storagePath) return { error: 'Berkas tidak ditemukan.' };
+
+    const adminClient = createAdminClient();
+    const supabase = adminClient || (await createClient());
+
+    if (!supabase) {
+      return { error: 'Database tidak terhubung.' };
+    }
+
+    if (storagePath.startsWith('/') || storagePath.startsWith('http')) {
+      return { url: storagePath };
+    }
+
+    const { data, error } = await supabase.storage
+      .from('course-attachments')
+      .createSignedUrl(storagePath, 3600);
+
+    if (error || !data) {
+      return { error: error?.message || 'Gagal membuat URL berkas.' };
+    }
+
+    return { url: data.signedUrl };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+/**
  * Admin action: update an existing material
  */
 export async function updateMaterial(
@@ -422,6 +611,7 @@ function mapLearningMaterialRow(row: any, timeframeViews?: number): Resource {
     sampleUrl: row.sample_url || '',
     tags: Array.isArray(row.tags) ? row.tags : [],
     is_published: row.is_published,
+    verificationStatus: row.verification_status || (row.is_published ? 'APPROVED' : 'PENDING'),
   };
 }
 

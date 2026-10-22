@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useTransition } from 'react';
+import React, { useState, useMemo, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -18,6 +18,7 @@ import { Resource } from '@/types';
 import { CourseWithDetails } from '@/types/course';
 import { mapCoursesToResources } from '@/lib/utils/resourceMapper';
 import { getAttachmentDownloadUrl } from '@/lib/actions/courses';
+import { submitPublicMaterial } from '@/lib/actions/materials';
 import {
   Upload,
   Download,
@@ -84,6 +85,53 @@ export function MateriDanSoalClient({
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Upload modal state
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadCourse, setUploadCourse] = useState('');
+  const [uploadType, setUploadType] = useState('Catatan Kuliah');
+  const [uploadAuthor, setUploadAuthor] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isSubmittingUpload, setIsSubmittingUpload] = useState(false);
+  const [uploadSubmitError, setUploadSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!uploadCourse && courseOptions.length > 1) {
+      setUploadCourse(courseOptions[1]);
+    }
+  }, [courseOptions, uploadCourse]);
+
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingUpload(true);
+    setUploadSubmitError(null);
+
+    try {
+      const fd = new FormData();
+      fd.append('title', uploadTitle);
+      fd.append('courseName', uploadCourse || courseOptions[1] || 'Manajemen Bisnis');
+      fd.append('type', uploadType);
+      fd.append('author', uploadAuthor);
+      if (uploadFile) {
+        fd.append('file', uploadFile);
+      }
+
+      const result = await submitPublicMaterial(fd);
+      if (!result.success) {
+        setUploadSubmitError(result.error || 'Gagal mengirim berkas materi. Silakan coba lagi.');
+      } else {
+        setUploadSuccess(true);
+        setUploadTitle('');
+        setUploadAuthor('');
+        setUploadFile(null);
+        router.refresh();
+      }
+    } catch (err: any) {
+      setUploadSubmitError(err.message || 'Terjadi kesalahan pada jaringan.');
+    } finally {
+      setIsSubmittingUpload(false);
+    }
+  };
 
   // Filtered dataset
   const filteredResources = useMemo(() => {
@@ -698,19 +746,16 @@ export function MateriDanSoalClient({
                 Pengajuan Berhasil Dikirim!
               </h4>
               <p className="text-xs text-neutral-600 max-w-sm mx-auto leading-relaxed">
-                Berkas Anda telah masuk ke antrean kurasi akademik Departemen Manajemen Bisnis ITS.
+                Materi Anda telah berhasil disimpan ke database dan dapat langsung dilihat serta dikelola di halaman Kelola Materi & Bank Soal.
               </p>
-              {!isLiveDb && (
-                <SimulationNotice
-                  actionName="Upload Multipart Berkas & Validasi MIME"
-                  backendRequirement="Bucket Storage Supabase dengan RLS dan antrean kurasi admin"
-                />
-              )}
               <div className="pt-2">
                 <PrimaryButton
                   variant="dark"
                   size="sm"
-                  onClick={() => setIsUploadModalOpen(false)}
+                  onClick={() => {
+                    setIsUploadModalOpen(false);
+                    setUploadSuccess(false);
+                  }}
                 >
                   Tutup Form
                 </PrimaryButton>
@@ -718,12 +763,15 @@ export function MateriDanSoalClient({
             </div>
           ) : (
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setUploadSuccess(true);
-              }}
+              onSubmit={handleUploadSubmit}
               className="space-y-4 text-xs"
             >
+              {uploadSubmitError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                  {uploadSubmitError}
+                </div>
+              )}
+
               <div>
                 <label className="block font-semibold text-neutral-700 mb-1">
                   Judul Materi / Berkas: *
@@ -731,6 +779,8 @@ export function MateriDanSoalClient({
                 <input
                   required
                   type="text"
+                  value={uploadTitle}
+                  onChange={(e) => setUploadTitle(e.target.value)}
                   placeholder="Contoh: Rangkuman Ujian Akhir Semester Manajemen Keuangan"
                   className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                 />
@@ -743,6 +793,8 @@ export function MateriDanSoalClient({
                   </label>
                   <select
                     required
+                    value={uploadCourse}
+                    onChange={(e) => setUploadCourse(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
                   >
                     {courseOptions.filter((c) => c !== 'Semua Mata Kuliah').map((c) => (
@@ -758,6 +810,8 @@ export function MateriDanSoalClient({
                   </label>
                   <select
                     required
+                    value={uploadType}
+                    onChange={(e) => setUploadType(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
                   >
                     {RESOURCE_TYPES_LIST.map((t) => (
@@ -776,6 +830,8 @@ export function MateriDanSoalClient({
                 <input
                   required
                   type="text"
+                  value={uploadAuthor}
+                  onChange={(e) => setUploadAuthor(e.target.value)}
                   placeholder="Nama Lengkap & Angkatan (Contoh: Budi Santoso - MB22)"
                   className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                 />
@@ -783,22 +839,15 @@ export function MateriDanSoalClient({
 
               <div>
                 <label className="block font-semibold text-neutral-700 mb-1">
-                  Pilih Dokumen (PDF/DOCX/XLSX/ZIP, Maks. 25MB): *
+                  Pilih Dokumen (PDF/DOCX/XLSX/ZIP, Maks. 25MB):
                 </label>
                 <input
                   type="file"
-                  required
                   accept=".pdf,.docx,.doc,.xlsx,.xls,.zip,.ipynb"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
                   className="w-full px-3 py-2 rounded-xl border border-neutral-300 bg-neutral-50 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white"
                 />
               </div>
-
-              {!isLiveDb && (
-                <SimulationNotice
-                  actionName="Simulasi Pengiriman Form Frontend"
-                  backendRequirement="Data ini belum disimpan ke server database produksi. Memerlukan integrasi akun Supabase."
-                />
-              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <SecondaryButton
@@ -806,11 +855,12 @@ export function MateriDanSoalClient({
                   variant="outline"
                   size="sm"
                   onClick={() => setIsUploadModalOpen(false)}
+                  disabled={isSubmittingUpload}
                 >
                   Batal
                 </SecondaryButton>
-                <PrimaryButton type="submit" variant="brand" size="sm">
-                  Kirim Berkas
+                <PrimaryButton type="submit" variant="brand" size="sm" disabled={isSubmittingUpload}>
+                  {isSubmittingUpload ? 'Mengirim...' : 'Kirim Berkas'}
                 </PrimaryButton>
               </div>
             </form>
