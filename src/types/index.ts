@@ -1,3 +1,5 @@
+import type { CourseWithDetails } from './course';
+
 export type ResourceType =
   | 'Catatan Kuliah'
   | 'Slide Dosen'
@@ -32,6 +34,7 @@ export interface Resource {
   total_views?: number;
   timeframe_views?: number;
   is_published?: boolean;
+  courseDetails?: CourseWithDetails;
 }
 
 export type TimeframeFilter = 'all' | 'month' | 'week' | 'today';

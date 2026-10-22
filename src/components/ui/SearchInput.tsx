@@ -5,6 +5,7 @@ interface SearchInputProps {
   id?: string;
   value: string;
   onChange: (value: string) => void;
+  onClear?: () => void;
   placeholder?: string;
   className?: string;
   ariaLabel?: string;
@@ -14,6 +15,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   id = 'academic-search-input',
   value,
   onChange,
+  onClear,
   placeholder = 'Cari materi, kode kuliah, atau topik...',
   className = '',
   ariaLabel = 'Pencarian sumber daya akademik',
@@ -35,7 +37,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       {value && (
         <button
           type="button"
-          onClick={() => onChange('')}
+          onClick={() => (onClear ? onClear() : onChange(''))}
           aria-label="Hapus pencarian"
           className="absolute right-3 text-neutral-400 hover:text-neutral-700 transition p-1 rounded-full cursor-pointer"
         >

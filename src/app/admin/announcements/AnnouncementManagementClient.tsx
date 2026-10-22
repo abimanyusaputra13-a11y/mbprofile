@@ -264,7 +264,7 @@ export function AnnouncementManagementClient({ initialAnnouncements, error }: Pr
         <div className="flex-1">
           <SearchInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(val) => setSearchQuery(val)}
             onClear={() => setSearchQuery('')}
             placeholder="Cari judul, ringkasan, atau kategori pengumuman..."
           />

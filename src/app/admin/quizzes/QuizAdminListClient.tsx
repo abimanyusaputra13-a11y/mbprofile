@@ -320,7 +320,7 @@ export function QuizAdminListClient({
                 <div className="flex items-center gap-2">
                   <Link href={`/admin/quizzes/${quiz.id}`} className="flex-1">
                     <PrimaryButton
-                      variant={quiz.question_count ? 'brand' : 'amber'}
+                      variant={quiz.question_count ? 'brand' : 'yellow'}
                       size="sm"
                       className="w-full justify-center"
                       icon={<Edit3 className="size-3.5" />}

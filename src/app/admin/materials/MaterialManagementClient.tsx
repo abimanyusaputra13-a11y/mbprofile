@@ -229,11 +229,13 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
         setMaterials((prev) =>
           prev.map((item) =>
             item.id === editingItem.id
-              ? {
+              ? ({
                   ...item,
                   ...formData,
+                  type: formData.type as any,
+                  fileFormat: formData.fileFormat as any,
                   tags: parsedTags,
-                }
+                } as AdminMaterialItem)
               : item
           )
         );
@@ -387,7 +389,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
         <div className="flex-1">
           <SearchInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(val) => setSearchQuery(val)}
             onClear={() => setSearchQuery('')}
             placeholder="Cari judul materi, kode mata kuliah, atau nama dosen..."
           />
@@ -608,7 +610,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
               >
                 {typesList.filter((t) => t !== 'Semua Tipe').map((t) => (
@@ -625,7 +627,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               </label>
               <select
                 value={formData.fileFormat}
-                onChange={(e) => setFormData({ ...formData, fileFormat: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, fileFormat: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
               >
                 {['PDF', 'IPYNB', 'DOCX', 'ZIP', 'XLSX'].map((f) => (
@@ -798,7 +800,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
               >
                 {typesList.filter((t) => t !== 'Semua Tipe').map((t) => (
@@ -815,7 +817,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               </label>
               <select
                 value={formData.fileFormat}
-                onChange={(e) => setFormData({ ...formData, fileFormat: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, fileFormat: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 bg-white"
               >
                 {['PDF', 'IPYNB', 'DOCX', 'ZIP', 'XLSX'].map((f) => (

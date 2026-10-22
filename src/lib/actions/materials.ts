@@ -3,7 +3,7 @@
 import { connection } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { verifyAdminStatus } from '@/lib/supabase/auth';
-import { Resource, TimeframeFilter } from '@/types';
+import { Resource, ResourceType, FileFormat, TimeframeFilter } from '@/types';
 import { mockResources } from '@/data/resources';
 import { revalidatePath } from 'next/cache';
 
@@ -12,9 +12,9 @@ export interface MaterialInput {
   courseCode: string;
   courseName: string;
   semester: number;
-  type: string;
+  type: ResourceType;
   academicYear: string;
-  fileFormat: string;
+  fileFormat: FileFormat;
   fileSize: string;
   author: string;
   description: string;

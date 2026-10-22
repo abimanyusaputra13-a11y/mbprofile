@@ -10,6 +10,7 @@ interface ModalProps {
   subtitle?: string;
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -18,7 +19,8 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   subtitle,
   children,
-  maxWidth = 'xl',
+  maxWidth,
+  size,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,7 +42,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  const maxWidthStyles = {
+  const maxWidthStyles: Record<string, string> = {
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
@@ -48,6 +50,8 @@ export const Modal: React.FC<ModalProps> = ({
     '2xl': 'max-w-2xl',
     '3xl': 'max-w-3xl',
   };
+
+  const modalWidth = maxWidthStyles[size as string] || maxWidthStyles[maxWidth as string] || 'max-w-xl';
 
   return (
     <div
@@ -65,7 +69,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-white rounded-3xl shadow-[8px_8px_0px_0px_#000] border-2 border-black overflow-hidden z-10 my-8 transition-all duration-200 animate-in zoom-in-95`}
+        className={`relative w-full ${modalWidth} bg-white rounded-3xl shadow-[8px_8px_0px_0px_#000] border-2 border-black overflow-hidden z-10 my-8 transition-all duration-200 animate-in zoom-in-95`}
       >
         {/* Header */}
         <div className="flex items-start justify-between p-6 sm:p-7 border-b border-neutral-100 bg-neutral-50/50">
