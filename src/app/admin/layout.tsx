@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { connection } from 'next/server';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { AdminNavBar } from '@/components/admin/AdminNavBar';
 import { verifyAdminStatus } from '@/lib/supabase/auth';
 import { signOutAction } from '@/lib/actions/auth';
 import { ShieldCheck, LogOut, ArrowLeft } from 'lucide-react';
