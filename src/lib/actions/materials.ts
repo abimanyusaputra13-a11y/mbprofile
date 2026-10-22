@@ -37,8 +37,8 @@ export async function getPopularMaterials(
   timeframe: TimeframeFilter = 'all',
   limit = 6
 ): Promise<{ data: Resource[]; error?: string; isLiveDb: boolean }> {
+  await connection();
   try {
-    await connection();
     const supabase = await createClient();
 
     if (!supabase) {
@@ -141,8 +141,8 @@ export async function recordMaterialVisit(materialId: string): Promise<{ success
  * Fetch all materials with timeframe analytics for Admin
  */
 export async function getAdminMaterials(): Promise<{ data: AdminMaterialItem[]; error?: string }> {
+  await connection();
   try {
-    await connection();
     const auth = await verifyAdminStatus();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
@@ -197,8 +197,8 @@ export async function getAdminMaterials(): Promise<{ data: AdminMaterialItem[]; 
  * Admin action: create a new learning material
  */
 export async function createMaterial(input: MaterialInput): Promise<{ success: boolean; data?: any; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 
@@ -246,8 +246,8 @@ export async function updateMaterial(
   id: string,
   input: Partial<MaterialInput>
 ): Promise<{ success: boolean; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 
@@ -279,8 +279,8 @@ export async function updateMaterial(
  * Admin action: delete a material
  */
 export async function deleteMaterial(id: string): Promise<{ success: boolean; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 

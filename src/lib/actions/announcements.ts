@@ -28,8 +28,8 @@ export async function getPublicAnnouncements(limit = 5): Promise<{
   error?: string;
   isLiveDb: boolean;
 }> {
+  await connection();
   try {
-    await connection();
     const supabase = await createClient();
 
     if (!supabase) {
@@ -62,8 +62,8 @@ export async function getAdminAnnouncements(): Promise<{
   data: Announcement[];
   error?: string;
 }> {
+  await connection();
   try {
-    await connection();
     const auth = await verifyAdminStatus();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
@@ -94,8 +94,8 @@ export async function getAdminAnnouncements(): Promise<{
 export async function createAnnouncement(
   input: AnnouncementInput
 ): Promise<{ success: boolean; data?: any; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 
@@ -112,7 +112,7 @@ export async function createAnnouncement(
         title: input.title,
         category: input.category,
         summary: input.summary,
-        content: input.content || null,
+        content: input.content || '',
         event_date: eventDate,
         display_date: displayDate,
         is_pinned: input.isPinned ?? false,
@@ -142,8 +142,8 @@ export async function updateAnnouncement(
   id: string,
   input: Partial<AnnouncementInput>
 ): Promise<{ success: boolean; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 
@@ -210,8 +210,8 @@ export async function toggleAnnouncementPublish(
  * Admin action: delete announcement
  */
 export async function deleteAnnouncement(id: string): Promise<{ success: boolean; error?: string }> {
+  await connection();
   try {
-    await connection();
     const adminClient = createAdminClient();
     const supabase = adminClient || (await createClient());
 
