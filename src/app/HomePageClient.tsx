@@ -120,8 +120,6 @@ export function HomePageClient({
           HERO SECTION
          ========================================================================= */}
       <section className="relative overflow-hidden pt-8 pb-20 sm:pt-14 sm:pb-28 border-b border-neutral-100">
-        <div className="grid-lines absolute inset-0 -z-10" aria-hidden="true" />
-
         <PageContainer>
           <div className="relative mx-auto flex min-h-[55vh] flex-col items-center justify-center text-center">
             {/* Floating Academic Badges */}

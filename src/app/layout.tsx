@@ -60,7 +60,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 bg-grid-pattern">{children}</main>
         <SiteFooter />
       </body>
     </html>

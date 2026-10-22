@@ -34,8 +34,7 @@ export default function AboutPage() {
       {/* =========================================================================
           PAGE HEADER
          ========================================================================= */}
-      <section className="relative overflow-hidden border-b border-neutral-100 bg-neutral-50/40">
-        <div className="grid-lines absolute inset-0 -z-10" aria-hidden="true" />
+      <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
             badge="Profil Departemen & Komunitas"
@@ -149,7 +148,7 @@ export default function AboutPage() {
       {/* =========================================================================
           VISION & MISSION (WITH EXPLICIT PROVISIONAL PLACEHOLDER NOTICE)
          ========================================================================= */}
-      <section className="bg-neutral-50/70 py-16 sm:py-24 border-y border-neutral-200/70">
+      <section className="py-16 sm:py-24 border-y border-neutral-200/70">
         <PageContainer>
           <div className="max-w-4xl mx-auto">
             <SectionHeading
@@ -287,7 +286,7 @@ export default function AboutPage() {
       {/* =========================================================================
           ORGANIZATIONAL STRUCTURE & LEADERSHIP
          ========================================================================= */}
-      <section className="bg-neutral-50/60 py-16 sm:py-24 border-y border-neutral-200/70">
+      <section className="py-16 sm:py-24 border-y border-neutral-200/70">
         <PageContainer>
           <div className="max-w-4xl mx-auto">
             <SectionHeading

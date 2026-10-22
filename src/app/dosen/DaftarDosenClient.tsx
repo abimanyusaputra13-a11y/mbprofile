@@ -117,8 +117,7 @@ export function DaftarDosenClient({
       {/* =========================================================================
           PAGE HEADER
          ========================================================================= */}
-      <section className="relative overflow-hidden border-b border-neutral-100 bg-neutral-50/50">
-        <div className="grid-lines absolute inset-0 -z-10" aria-hidden="true" />
+      <section className="relative overflow-hidden border-b border-neutral-200/80">
         <PageContainer>
           <PageHeading
             badge="Profil Dosen & Minat Riset MB-ITS"
