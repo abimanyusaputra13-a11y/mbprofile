@@ -55,31 +55,9 @@ export async function getPopularMaterials(
     });
 
     if (!rpcError && rpcData && rpcData.length > 0) {
-      const resources: Resource[] = rpcData.map((row: any) => ({
-        id: row.id,
-        title: row.title,
-        courseCode: row.course_code,
-        courseName: row.course_name,
-        semester: row.semester,
-        type: row.type as any,
-        academicYear: row.academic_year,
-        fileFormat: row.file_format as any,
-        fileSize: row.file_size,
-        uploadedAt: new Date(row.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        downloadCount: row.download_count,
-        total_views: row.total_views,
-        timeframe_views: Number(row.timeframe_views || 0),
-        author: row.author,
-        description: row.description,
-        sampleUrl: row.sample_url || '',
-        tags: Array.isArray(row.tags) ? row.tags : [],
-        is_published: row.is_published,
-      }));
-
+      const resources: Resource[] = rpcData.map((row: any) =>
+        mapLearningMaterialRow(row, Number(row.timeframe_views || 0))
+      );
       return { data: resources, isLiveDb: true };
     }
 
@@ -98,30 +76,9 @@ export async function getPopularMaterials(
       };
     }
 
-    const mapped: Resource[] = rawMaterials.map((row: any) => ({
-      id: row.id,
-      title: row.title,
-      courseCode: row.course_code,
-      courseName: row.course_name,
-      semester: row.semester,
-      type: row.type as any,
-      academicYear: row.academic_year,
-      fileFormat: row.file_format as any,
-      fileSize: row.file_size,
-      uploadedAt: new Date(row.created_at).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }),
-      downloadCount: row.download_count,
-      total_views: row.total_views,
-      timeframe_views: row.total_views,
-      author: row.author,
-      description: row.description,
-      sampleUrl: row.sample_url || '',
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      is_published: row.is_published,
-    }));
+    const mapped: Resource[] = rawMaterials.map((row: any) =>
+      mapLearningMaterialRow(row, row.total_views)
+    );
 
     return { data: mapped, isLiveDb: true };
   } catch (err: any) {
@@ -223,30 +180,10 @@ export async function getAdminMaterials(): Promise<{ data: AdminMaterialItem[]; 
       const viewsMonth = matViews.length;
 
       return {
-        id: m.id,
-        title: m.title,
-        courseCode: m.course_code,
-        courseName: m.course_name,
-        semester: m.semester,
-        type: m.type as any,
-        academicYear: m.academic_year,
-        fileFormat: m.file_format as any,
-        fileSize: m.file_size,
-        uploadedAt: new Date(m.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        downloadCount: m.download_count,
-        total_views: m.total_views,
+        ...mapLearningMaterialRow(m),
         viewsToday,
         viewsWeek,
         viewsMonth,
-        author: m.author,
-        description: m.description,
-        sampleUrl: m.sample_url || '',
-        tags: Array.isArray(m.tags) ? m.tags : [],
-        is_published: m.is_published,
       };
     });
 
@@ -318,23 +255,7 @@ export async function updateMaterial(
       return { success: false, error: 'Database client not available' };
     }
 
-    const updatePayload: Record<string, any> = {
-      updated_at: new Date().toISOString(),
-    };
-
-    if (input.title !== undefined) updatePayload.title = input.title;
-    if (input.courseCode !== undefined) updatePayload.course_code = input.courseCode;
-    if (input.courseName !== undefined) updatePayload.course_name = input.courseName;
-    if (input.semester !== undefined) updatePayload.semester = input.semester;
-    if (input.type !== undefined) updatePayload.type = input.type;
-    if (input.academicYear !== undefined) updatePayload.academic_year = input.academicYear;
-    if (input.fileFormat !== undefined) updatePayload.file_format = input.fileFormat;
-    if (input.fileSize !== undefined) updatePayload.file_size = input.fileSize;
-    if (input.author !== undefined) updatePayload.author = input.author;
-    if (input.description !== undefined) updatePayload.description = input.description;
-    if (input.sampleUrl !== undefined) updatePayload.sample_url = input.sampleUrl;
-    if (input.tags !== undefined) updatePayload.tags = input.tags;
-    if (input.isPublished !== undefined) updatePayload.is_published = input.isPublished;
+    const updatePayload = buildMaterialUpdatePayload(input);
 
     const { error } = await supabase
       .from('learning_materials')
@@ -461,4 +382,78 @@ function getMockPopularMaterials(timeframe: TimeframeFilter, limit: number): Res
     total_views: r.downloadCount * 4 + 100,
     timeframe_views: Math.max(10, Math.floor((r.downloadCount * 4) / (idx + 1))),
   }));
+}
+
+// ==============================================================================
+// Behavior-Preserving Helpers
+// ==============================================================================
+
+/**
+ * Formats a timestamp into Indonesian short date format ('id-ID').
+ */
+function formatShortIndonesianDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Maps a Supabase learning_materials database row to the Resource interface.
+ */
+function mapLearningMaterialRow(row: any, timeframeViews?: number): Resource {
+  return {
+    id: row.id,
+    title: row.title,
+    courseCode: row.course_code,
+    courseName: row.course_name,
+    semester: row.semester,
+    type: row.type as any,
+    academicYear: row.academic_year,
+    fileFormat: row.file_format as any,
+    fileSize: row.file_size,
+    uploadedAt: formatShortIndonesianDate(row.created_at),
+    downloadCount: row.download_count,
+    total_views: row.total_views,
+    timeframe_views: timeframeViews !== undefined ? timeframeViews : Number(row.timeframe_views || 0),
+    author: row.author,
+    description: row.description,
+    sampleUrl: row.sample_url || '',
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    is_published: row.is_published,
+  };
+}
+
+/**
+ * Builds the update payload object for learning_materials updates.
+ */
+function buildMaterialUpdatePayload(input: Partial<MaterialInput>): Record<string, any> {
+  const payload: Record<string, any> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  const keyMap: [keyof MaterialInput, string][] = [
+    ['title', 'title'],
+    ['courseCode', 'course_code'],
+    ['courseName', 'course_name'],
+    ['semester', 'semester'],
+    ['type', 'type'],
+    ['academicYear', 'academic_year'],
+    ['fileFormat', 'file_format'],
+    ['fileSize', 'file_size'],
+    ['author', 'author'],
+    ['description', 'description'],
+    ['sampleUrl', 'sample_url'],
+    ['tags', 'tags'],
+    ['isPublished', 'is_published'],
+  ];
+
+  for (const [key, dbColumn] of keyMap) {
+    if (input[key] !== undefined) {
+      payload[dbColumn] = input[key];
+    }
+  }
+
+  return payload;
 }
