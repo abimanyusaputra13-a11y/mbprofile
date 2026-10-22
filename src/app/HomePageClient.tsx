@@ -109,11 +109,11 @@ export function HomePageClient({
 
 
   return (
-    <div className="flex flex-col gap-16 sm:gap-24 lg:gap-32 pb-16">
+    <div className="flex flex-col gap-12 sm:gap-16 lg:gap-20 pb-16">
       {/* =========================================================================
           HERO SECTION
          ========================================================================= */}
-      <section className="relative overflow-hidden pt-8 pb-20 sm:pt-14 sm:pb-28 border-b border-neutral-100">
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 border-b border-neutral-100">
         <PageContainer>
           <div className="relative mx-auto flex min-h-[55vh] flex-col items-center justify-center text-center">
             {/* Floating Academic Badges — Symmetrically positioned at top left and top right */}
@@ -207,89 +207,6 @@ export function HomePageClient({
                 );
               })}
             </div>
-          </div>
-        </PageContainer>
-      </section>
-
-      {/* =========================================================================
-          STRATEGIC PILLARS SECTION
-         ========================================================================= */}
-      <section className="relative">
-        <PageContainer>
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 block">
-              Kurikulum Berbasis Kompetensi
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900 leading-tight">
-              4 Pilar Keilmuan <span className="text-script text-blue-600 font-normal">Manajemen Bisnis</span>
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-neutral-600 font-light">
-              Pendidikan yang mengintegrasikan penguasaan konseptual manajemen modern dengan penerapan teknologi digital dan inovasi analitik industri.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: 'Finance',
-                sub: 'Keuangan & Valuasi Korporasi',
-                desc: 'Analisis rasio, capital budgeting, corporate valuation, mitigasi risiko finansial, dan manajemen portofolio investasi.',
-                icon: '📊',
-                tag: 'Data-Driven',
-                color: 'blue',
-              },
-              {
-                title: 'Operations',
-                sub: 'Operasi & Rantai Pasok',
-                desc: 'Optimasi rantai pasok global, logistik terpadu, lean management, pengendalian mutu (Six Sigma), dan perencanaan produksi.',
-                icon: '⚙️',
-                tag: 'Efisiensi',
-                color: 'amber',
-              },
-              {
-                title: 'Marketing',
-                sub: 'Pemasaran & Analitik Pasar',
-                desc: 'Riset perilaku konsumen, strategi branding berkelanjutan, omnichannel marketing, analisis bauran pemasaran, dan penetrasi pasar.',
-                icon: '🎯',
-                tag: 'Growth',
-                color: 'emerald',
-              },
-              {
-                title: 'Human Capital',
-                sub: 'Kepemimpinan & Organisasi',
-                desc: 'Desain organisasi adaptif, transformasi talenta digital, kepemimpinan strategis, negosiasi bisnis, dan budaya korporat unggul.',
-                icon: '👥',
-                tag: 'Leadership',
-                color: 'violet',
-              },
-            ].map((pilar, idx) => (
-              <div
-                key={idx}
-                className="group relative p-6 sm:p-7 rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-3xl">{pilar.icon}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 bg-neutral-100 px-2.5 py-1 rounded-full">
-                    {pilar.tag}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-neutral-900 group-hover:text-blue-600 transition-colors mb-1">
-                  {pilar.title}
-                </h3>
-                <p className="text-xs font-semibold text-blue-600 mb-2">
-                  {pilar.sub}
-                </p>
-                <p className="text-xs text-neutral-500 leading-relaxed">
-                  {pilar.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center max-w-3xl mx-auto text-sm sm:text-base text-neutral-600 font-light leading-relaxed">
-            <p>
-              <b className="font-bold text-neutral-900">Finance</b> yang terukur menjamin ketahanan finansial, <b className="font-bold text-neutral-900">Operations</b> menghasilkan eksekusi bisnis yang andal, <b className="font-bold text-neutral-900">Marketing</b> memperluas jangkauan pasar, dan <b className="font-bold text-neutral-900">Human Capital</b> menumbuhkan kepemimpinan bisnis berdaya saing global.
-            </p>
           </div>
         </PageContainer>
       </section>
