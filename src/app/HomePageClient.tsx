@@ -122,24 +122,24 @@ export function HomePageClient({
       <section className="relative overflow-hidden pt-8 pb-20 sm:pt-14 sm:pb-28 border-b border-neutral-100">
         <PageContainer>
           <div className="relative mx-auto flex min-h-[55vh] flex-col items-center justify-center text-center">
-            {/* Floating Academic Badges */}
-            <div className="animate-float absolute -top-4 right-4 sm:top-2 sm:right-16 hidden md:flex items-center gap-2 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-2xl border border-neutral-200/90 shadow-md">
-              <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600">
-                <ShieldCheck className="size-5" />
-              </div>
-              <div className="text-left text-xs">
-                <p className="font-mono font-bold text-neutral-800">FIBAA Accredited</p>
-                <p className="text-[10px] text-emerald-600 font-semibold">Valid 2025–2030</p>
-              </div>
-            </div>
-
-            <div className="animate-float-slow absolute bottom-12 left-4 sm:bottom-20 sm:left-12 hidden md:flex items-center gap-2.5 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-neutral-200/90 shadow-md">
+            {/* Floating Academic Badges — Symmetrically positioned at top left and top right */}
+            <div className="animate-float-slow absolute -top-4 left-2 sm:top-2 sm:left-6 lg:left-12 xl:left-16 hidden md:flex items-center gap-2.5 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-neutral-200/90 shadow-md z-10">
               <div className="p-1.5 rounded-xl bg-amber-50 text-amber-600">
                 <Trophy className="size-5" />
               </div>
               <div className="text-left text-xs">
                 <p className="font-bold text-neutral-800">Rektor Awards 2025</p>
                 <p className="text-[10px] text-neutral-500">Juara 1 Internationalisation</p>
+              </div>
+            </div>
+
+            <div className="animate-float absolute -top-4 right-2 sm:top-2 sm:right-6 lg:right-12 xl:right-16 hidden md:flex items-center gap-2 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-2xl border border-neutral-200/90 shadow-md z-10">
+              <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600">
+                <ShieldCheck className="size-5" />
+              </div>
+              <div className="text-left text-xs">
+                <p className="font-mono font-bold text-neutral-800">FIBAA Accredited</p>
+                <p className="text-[10px] text-emerald-600 font-semibold">Valid 2025–2030</p>
               </div>
             </div>
 
