@@ -11,6 +11,16 @@ interface ResourceCardProps {
   onDownload: (resource: Resource) => void;
 }
 
+const FORMAT_BADGE_VARIANTS: Record<string, 'red' | 'yellow' | 'green' | 'brand'> = {
+  PDF: 'red',
+  ZIP: 'yellow',
+  IPYNB: 'green',
+};
+
+function getFormatBadgeVariant(format: Resource['fileFormat']): 'red' | 'yellow' | 'green' | 'brand' {
+  return FORMAT_BADGE_VARIANTS[format] || 'brand';
+}
+
 export const ResourceCard: React.FC<ResourceCardProps> = ({
   resource,
   onPreview,
@@ -19,25 +29,11 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   const [copied, setCopied] = useState(false);
 
   const handleShare = () => {
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/materi-soal?id=${resource.id}` : '';
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const getFormatBadgeVariant = (format: Resource['fileFormat']) => {
-    switch (format) {
-      case 'PDF':
-        return 'red';
-      case 'ZIP':
-        return 'yellow';
-      case 'IPYNB':
-        return 'green';
-      default:
-        return 'brand';
-    }
+    if (typeof window === 'undefined' || !navigator.clipboard) return;
+    const url = `${window.location.origin}/materi-soal?id=${resource.id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (

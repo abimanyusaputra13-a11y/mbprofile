@@ -10,19 +10,20 @@ interface AchievementCardProps {
   onSelect?: (achievement: Achievement) => void;
 }
 
+const BADGE_VARIANT_MAP: Record<string, 'yellow' | 'purple' | 'green' | 'brand'> = {
+  gold: 'yellow',
+  purple: 'purple',
+  green: 'green',
+};
+
+function getBadgeVariant(variant?: Achievement['badgeVariant']): 'yellow' | 'purple' | 'green' | 'brand' {
+  if (variant && variant in BADGE_VARIANT_MAP) {
+    return BADGE_VARIANT_MAP[variant];
+  }
+  return 'brand';
+}
+
 export const AchievementCard: React.FC<AchievementCardProps> = ({ achievement, onSelect }) => {
-  const getBadgeVariant = (variant?: Achievement['badgeVariant']) => {
-    switch (variant) {
-      case 'gold':
-        return 'yellow';
-      case 'purple':
-        return 'purple';
-      case 'green':
-        return 'green';
-      default:
-        return 'brand';
-    }
-  };
 
   return (
     <div
