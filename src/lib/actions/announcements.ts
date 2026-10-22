@@ -48,26 +48,7 @@ export async function getPublicAnnouncements(limit = 5): Promise<{
       return { data: mockAnnouncements.slice(0, limit), isLiveDb: false };
     }
 
-    const mapped: Announcement[] = data.map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      date: item.display_date || new Date(item.event_date || item.created_at).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }),
-      category: item.category,
-      summary: item.summary,
-      content: item.content,
-      isPinned: Boolean(item.is_pinned),
-      linkText: item.link_text || undefined,
-      linkUrl: item.link_url || undefined,
-      isPublished: item.is_published,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-    }));
-
-    return { data: mapped, isLiveDb: true };
+    return { data: data.map(mapAnnouncementRow), isLiveDb: true };
   } catch (err: any) {
     console.error('Error fetching announcements:', err);
     return { data: mockAnnouncements.slice(0, limit), isLiveDb: false, error: err.message };
@@ -101,26 +82,7 @@ export async function getAdminAnnouncements(): Promise<{
       return { data: [], error: error.message };
     }
 
-    const mapped: Announcement[] = (data || []).map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      date: item.display_date || new Date(item.event_date || item.created_at).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }),
-      category: item.category,
-      summary: item.summary,
-      content: item.content,
-      isPinned: Boolean(item.is_pinned),
-      linkText: item.link_text,
-      linkUrl: item.link_url,
-      isPublished: item.is_published,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-    }));
-
-    return { data: mapped };
+    return { data: (data || []).map(mapAnnouncementRow) };
   } catch (err: any) {
     return { data: [], error: err.message };
   }
@@ -142,11 +104,7 @@ export async function createAnnouncement(
     }
 
     const eventDate = input.eventDate || new Date().toISOString().split('T')[0];
-    const displayDate = input.displayDate || new Date(eventDate).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
+    const displayDate = input.displayDate || formatIndonesianDate(eventDate);
 
     const { data, error } = await supabase
       .from('announcements')
@@ -203,11 +161,7 @@ export async function updateAnnouncement(
     if (input.content !== undefined) payload.content = input.content;
     if (input.eventDate !== undefined) {
       payload.event_date = input.eventDate;
-      payload.display_date = input.displayDate || new Date(input.eventDate).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
+      payload.display_date = input.displayDate || formatIndonesianDate(input.eventDate);
     }
     if (input.displayDate !== undefined) payload.display_date = input.displayDate;
     if (input.isPinned !== undefined) payload.is_pinned = input.isPinned;
@@ -280,4 +234,39 @@ export async function deleteAnnouncement(id: string): Promise<{ success: boolean
   } catch (err: any) {
     return { success: false, error: err.message };
   }
+}
+
+// ==============================================================================
+// Behavior-Preserving Helpers
+// ==============================================================================
+
+/**
+ * Formats a date string to Indonesian locale format ('id-ID').
+ */
+function formatIndonesianDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Maps a raw Supabase announcement row to the Announcement interface.
+ */
+function mapAnnouncementRow(item: any): Announcement {
+  return {
+    id: item.id,
+    title: item.title,
+    date: item.display_date || formatIndonesianDate(item.event_date || item.created_at),
+    category: item.category,
+    summary: item.summary,
+    content: item.content,
+    isPinned: Boolean(item.is_pinned),
+    linkText: item.link_text || undefined,
+    linkUrl: item.link_url || undefined,
+    isPublished: item.is_published,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  };
 }
