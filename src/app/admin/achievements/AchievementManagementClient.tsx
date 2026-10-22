@@ -354,7 +354,26 @@ export function AchievementManagementClient({ initialAchievements, error }: Prop
                       <span>Penyelenggara: {item.eventOrganizer}</span>
                     </div>
                   )}
+                  {item.description && (
+                    <div className="pt-1">
+                      <p className="text-xs text-neutral-600 bg-neutral-50 p-2.5 rounded-xl border border-neutral-200 leading-relaxed">
+                        <strong className="font-semibold text-neutral-800">Deskripsi:</strong> {item.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
+
+                {/* Documentation photo thumbnail if present */}
+                {item.photoUrl && (
+                  <div className="pt-2">
+                    <p className="text-[11px] font-bold text-neutral-600 mb-1">Foto Dokumentasi:</p>
+                    <img
+                      src={item.photoUrl}
+                      alt={item.title}
+                      className="w-36 h-24 object-cover rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000]"
+                    />
+                  </div>
+                )}
 
                 {/* Certificate link if present */}
                 {item.certificateStorageKey && (

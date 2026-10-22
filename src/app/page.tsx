@@ -1,22 +1,26 @@
 import React from 'react';
 import { getPublicPublishedCourses } from '@/lib/actions/courses';
+import { getPublicPublishedMaterials } from '@/lib/actions/materials';
 import { getPublicAnnouncements } from '@/lib/actions/announcements';
 import { HomePageClient } from './HomePageClient';
 
 export const instant = false;
 
 export default async function HomePage() {
-  const [coursesRes, announcementsRes] = await Promise.all([
+  const [coursesRes, materialsRes, announcementsRes] = await Promise.all([
     getPublicPublishedCourses(),
+    getPublicPublishedMaterials(),
     getPublicAnnouncements(4),
   ]);
 
   return (
     <HomePageClient
       initialCourses={coursesRes.data || []}
-      isLiveCoursesDb={coursesRes.isLiveDb}
+      initialMaterials={materialsRes.data || []}
+      isLiveCoursesDb={coursesRes.isLiveDb || materialsRes.isLiveDb}
       initialAnnouncements={announcementsRes.data || []}
       isLiveAnnouncementsDb={announcementsRes.isLiveDb}
     />
   );
 }
+

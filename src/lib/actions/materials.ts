@@ -30,6 +30,42 @@ export interface AdminMaterialItem extends Resource {
 }
 
 /**
+ * Public action: Fetch all approved and published materials from learning_materials
+ */
+export async function getPublicPublishedMaterials(): Promise<{ data: Resource[]; error?: string; isLiveDb: boolean }> {
+  await connection();
+  try {
+    const adminClient = createAdminClient();
+    const supabase = adminClient || (await createClient());
+
+    if (!supabase) {
+      return { data: [], isLiveDb: false };
+    }
+
+    const { data: rawMaterials, error: matError } = await supabase
+      .from('learning_materials')
+      .select('*')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
+
+    if (matError) {
+      console.error('Error fetching published materials:', matError);
+      return { data: [], error: matError.message, isLiveDb: true };
+    }
+
+    const mapped: Resource[] = (rawMaterials || []).map((row: any) =>
+      mapLearningMaterialRow(row, row.total_views)
+    );
+
+    return { data: mapped, isLiveDb: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal memuat materi dari database';
+    console.error('Error in getPublicPublishedMaterials:', err);
+    return { data: [], error: message, isLiveDb: false };
+  }
+}
+
+/**
  * Fetch popular materials filtered and sorted by visit count in a timeframe.
  * Real-time integrated with Supabase.
  */

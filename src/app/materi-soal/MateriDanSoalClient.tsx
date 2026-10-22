@@ -18,7 +18,11 @@ import { Resource } from '@/types';
 import { CourseWithDetails } from '@/types/course';
 import { mapCoursesToResources } from '@/lib/utils/resourceMapper';
 import { getAttachmentDownloadUrl } from '@/lib/actions/courses';
-import { submitPublicMaterial } from '@/lib/actions/materials';
+import {
+  submitPublicMaterial,
+  getMaterialDownloadUrl,
+  recordMaterialVisit,
+} from '@/lib/actions/materials';
 import {
   Upload,
   Download,
@@ -36,12 +40,14 @@ import {
 
 interface MateriDanSoalClientProps {
   initialCourses: CourseWithDetails[];
+  initialMaterials?: Resource[];
   initialError?: string;
   isLiveDb: boolean;
 }
 
 export function MateriDanSoalClient({
   initialCourses,
+  initialMaterials = [],
   initialError,
   isLiveDb,
 }: MateriDanSoalClientProps) {
@@ -52,10 +58,13 @@ export function MateriDanSoalClient({
   // When live DB is connected, only use live data. If unconfigured, use mockResources with clear notice.
   const allResources: Resource[] = useMemo(() => {
     if (isLiveDb) {
-      return mapCoursesToResources(initialCourses);
+      const userMaterials = initialMaterials || [];
+      const courseResources = mapCoursesToResources(initialCourses);
+      // Prioritize verified student & lecturer learning materials, followed by official course syllabus cards
+      return [...userMaterials, ...courseResources];
     }
     return mockResources;
-  }, [isLiveDb, initialCourses]);
+  }, [isLiveDb, initialCourses, initialMaterials]);
 
   // Dynamic course options based on active resources
   const courseOptions = useMemo(() => {
@@ -182,37 +191,70 @@ export function MateriDanSoalClient({
 
   // Real secure attachment download handler
   const handleRealDownload = async (resource: Resource) => {
-    if (!resource.attachmentId) {
-      // If it's a summary or mock, open download modal / fallback
-      setDownloadModalResource(resource);
+    // 1. If it has sampleUrl (from learning_materials table)
+    if (resource.sampleUrl) {
+      setIsDownloading(true);
+      setDownloadError(null);
+
+      try {
+        const res = await getMaterialDownloadUrl(resource.sampleUrl);
+        if (res.error || !res.url) {
+          setDownloadError(res.error || 'Gagal membuat tautan unduhan aman.');
+          setDownloadModalResource(resource);
+        } else {
+          // Asynchronously record visit
+          recordMaterialVisit(resource.id);
+
+          const a = document.createElement('a');
+          a.href = res.url;
+          a.download = `${resource.title}.${resource.fileFormat?.toLowerCase() || 'pdf'}`;
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunduh berkas.';
+        setDownloadError(msg);
+        setDownloadModalResource(resource);
+      } finally {
+        setIsDownloading(false);
+      }
       return;
     }
 
-    setIsDownloading(true);
-    setDownloadError(null);
+    // 2. If it has attachmentId (from course attachments)
+    if (resource.attachmentId) {
+      setIsDownloading(true);
+      setDownloadError(null);
 
-    try {
-      const res = await getAttachmentDownloadUrl(resource.attachmentId);
-      if (res.error || !res.url) {
-        setDownloadError(res.error || 'Gagal membuat tautan unduhan aman.');
+      try {
+        const res = await getAttachmentDownloadUrl(resource.attachmentId);
+        if (res.error || !res.url) {
+          setDownloadError(res.error || 'Gagal membuat tautan unduhan aman.');
+          setDownloadModalResource(resource);
+        } else {
+          // Direct browser to signed URL
+          const a = document.createElement('a');
+          a.href = res.url;
+          a.download = resource.title;
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunduh berkas.';
+        setDownloadError(msg);
         setDownloadModalResource(resource);
-      } else {
-        // Direct browser to signed URL
-        const a = document.createElement('a');
-        a.href = res.url;
-        a.download = resource.title;
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+      } finally {
+        setIsDownloading(false);
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunduh berkas.';
-      setDownloadError(msg);
-      setDownloadModalResource(resource);
-    } finally {
-      setIsDownloading(false);
+      return;
     }
+
+    // 3. Fallback modal for items without direct downloadable attachments
+    setDownloadModalResource(resource);
   };
 
   return (
@@ -647,7 +689,7 @@ export function MateriDanSoalClient({
                 >
                   Tutup
                 </SecondaryButton>
-                {previewResource.attachmentId && (
+                {(previewResource.attachmentId || previewResource.sampleUrl) && (
                   <PrimaryButton
                     variant="brand"
                     size="sm"

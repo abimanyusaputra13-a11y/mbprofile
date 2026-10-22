@@ -15,7 +15,11 @@ import {
   ACHIEVEMENT_YEARS_LIST,
 } from '@/data/achievements';
 import { Achievement, AchievementCategory, AchievementLevel } from '@/types';
-import { submitAchievementReport } from '@/lib/actions/achievements';
+import {
+  submitAchievementReport,
+  getCertificateDownloadUrl,
+} from '@/lib/actions/achievements';
+import { Badge } from '@/components/ui/Badge';
 import {
   Trophy,
   Award,
@@ -24,6 +28,9 @@ import {
   CheckCircle,
   RotateCcw,
   Sparkles,
+  GraduationCap,
+  FileCheck,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface Props {
@@ -48,9 +55,12 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
   const [award, setAward] = useState('');
   const [members, setMembers] = useState('');
   const [eventOrganizer, setEventOrganizer] = useState('');
+  const [description, setDescription] = useState('');
   const [level, setLevel] = useState<AchievementLevel>('Nasional');
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [file, setFile] = useState<File | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -99,8 +109,14 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
       fd.append('eventOrganizer', eventOrganizer || title);
       fd.append('level', level);
       fd.append('year', year.toString());
+      if (description.trim()) {
+        fd.append('description', description.trim());
+      }
       if (file) {
         fd.append('file', file);
+      }
+      if (photo) {
+        fd.append('photo', photo);
       }
 
       const res = await submitAchievementReport(fd);
@@ -110,7 +126,10 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
         setAward('');
         setMembers('');
         setEventOrganizer('');
+        setDescription('');
         setFile(null);
+        setPhoto(null);
+        setPhotoPreview(null);
         router.refresh();
       } else {
         setSubmitError(res.error || 'Gagal mengirim laporan prestasi.');
@@ -241,7 +260,7 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
               resetText="Reset Filter"
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredAchievements.map((ach) => (
                 <AchievementCard
                   key={ach.id}
@@ -255,55 +274,107 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
       </section>
 
       {/* =========================================================================
-          DETAIL ACHIEVEMENT MODAL
+          DETAIL ACHIEVEMENT MODAL (SEAMLESS UNIFIED PRESENTATION)
          ========================================================================= */}
       {selectedAchievement && (
         <Modal
           isOpen={!!selectedAchievement}
           onClose={() => setSelectedAchievement(null)}
-          title={selectedAchievement.title}
-          subtitle={`${selectedAchievement.award} • ${selectedAchievement.year}`}
-          maxWidth="lg"
+          title="Detail Capaian Prestasi"
+          maxWidth="4xl"
         >
-          <div className="space-y-4 text-xs sm:text-sm text-neutral-700">
-            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200">
-              <p className="font-bold text-amber-950 text-sm mb-1">
-                Penyelenggara: {selectedAchievement.eventOrganizer}
-              </p>
-              <p className="text-amber-900/90 text-xs">
-                Tingkat: <span className="font-semibold">{selectedAchievement.level}</span> | Kategori: <span className="font-semibold">{selectedAchievement.category}</span>
-              </p>
-            </div>
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              {/* Sisi Kiri: Foto Dokumentasi Prestasi */}
+              <div className="w-full md:w-[36%] shrink-0">
+                <div className="w-full aspect-4/3 rounded-2xl overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_#000] bg-neutral-900 relative flex items-center justify-center">
+                  {selectedAchievement.photoUrl ? (
+                    <img
+                      src={selectedAchievement.photoUrl}
+                      alt={selectedAchievement.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-white relative">
+                      <div className="size-14 rounded-2xl bg-white/10 backdrop-blur-xs flex items-center justify-center border border-white/20 mb-2 shadow-inner">
+                        <Trophy className="size-7 text-amber-400 drop-shadow" />
+                      </div>
+                      <p className="text-xs font-bold text-neutral-200 tracking-wide">Dokumentasi Prestasi</p>
+                      <p className="text-[10px] text-neutral-400 mt-0.5">Departemen MB ITS</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-            <div>
-              <p className="font-bold text-neutral-900 mb-1">Anggota Tim / Mahasiswa Penerima:</p>
-              <div className="space-y-1">
-                {selectedAchievement.members.map((member, i) => (
-                  <p
-                    key={i}
-                    className="p-2 bg-neutral-50 rounded-xl border border-neutral-200 font-mono text-xs text-neutral-800"
-                  >
-                    • {member}
+              {/* Sisi Kanan: Tulisan Pendukung (Memanjang & Tidak Padat) */}
+              <div className="flex-1 min-w-0 space-y-3.5 text-xs sm:text-sm">
+                {/* Pencapaian (Nama Ajang) ditulis tebal di samping foto */}
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-neutral-900 leading-snug">
+                    {selectedAchievement.title}
+                  </h3>
+                  {/* Penyelenggara di bawahnya dengan font lebih kecil warna abu-abu */}
+                  <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
+                    Penyelenggara: {selectedAchievement.eventOrganizer}
                   </p>
-                ))}
+                </div>
+
+                {/* Rincian Anggota Tim & Nama Mahasiswa */}
+                <div className="pt-2.5 border-t border-neutral-100 space-y-1.5">
+                  <p className="font-bold text-neutral-900 flex items-center gap-1.5 text-xs">
+                    <Users className="size-3.5 text-blue-600" />
+                    <span>Anggota Tim &amp; Mahasiswa Penerima:</span>
+                  </p>
+                  {selectedAchievement.teamName && (
+                    <p className="text-xs font-bold text-blue-600 flex items-center gap-1.5 pl-1">
+                      <Sparkles className="size-3" />
+                      <span>Tim: {selectedAchievement.teamName}</span>
+                    </p>
+                  )}
+                  <ul className="space-y-1 pl-1">
+                    {selectedAchievement.members.map((member, i) => (
+                      <li key={i} className="text-xs sm:text-sm text-neutral-700 flex items-center gap-2">
+                        <span className="size-1.5 rounded-full bg-blue-600 shrink-0" />
+                        <span className="font-medium">{member}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {selectedAchievement.advisor && (
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 pt-0.5 pl-1">
+                      <GraduationCap className="size-3.5 text-neutral-400 shrink-0" />
+                      <span>Dosen Pembina: {selectedAchievement.advisor}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Deskripsi Capaian Prestasi - teks warna hitam saja dengan ukuran font sedikit lebih kecil */}
+                <div className="pt-2.5 border-t border-neutral-100">
+                  <p className="font-bold text-neutral-900 mb-1 text-xs">Deskripsi Capaian Prestasi:</p>
+                  <p className="text-xs text-black font-normal leading-relaxed whitespace-pre-wrap">
+                    {selectedAchievement.description}
+                  </p>
+                </div>
+
+                {/* Bukti Sertifikat / SK (Jika ada) */}
+                {selectedAchievement.certificateStorageKey && (
+                  <div className="pt-2.5 border-t border-neutral-100">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await getCertificateDownloadUrl(selectedAchievement.certificateStorageKey!);
+                        if (res.url) window.open(res.url, '_blank');
+                      }}
+                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition border border-blue-200 cursor-pointer"
+                    >
+                      <FileCheck className="size-3.5 text-blue-600" />
+                      <span>Lihat / Unduh Bukti Sertifikat / SK</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {selectedAchievement.advisor && (
-              <div>
-                <p className="font-bold text-neutral-900 mb-1">Dosen Pembina:</p>
-                <p className="text-neutral-700">{selectedAchievement.advisor}</p>
-              </div>
-            )}
-
-            <div>
-              <p className="font-bold text-neutral-900 mb-1">Deskripsi Capaian Prestasi:</p>
-              <p className="text-neutral-600 leading-relaxed font-light">
-                {selectedAchievement.description}
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-3">
+            <div className="flex justify-end pt-3 border-t border-neutral-100">
               <SecondaryButton
                 variant="outline"
                 size="sm"
@@ -371,7 +442,7 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Contoh: Business Case Competition / Unilever Future Leaders' League"
+                  placeholder="Contoh: Business Case"
                   className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                 />
               </div>
@@ -440,7 +511,7 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
                     type="text"
                     value={award}
                     onChange={(e) => setAward(e.target.value)}
-                    placeholder="Contoh: Juara 1 / 1st Runner-Up / Medali Emas"
+                    placeholder="Contoh: Juara 1"
                     className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                   />
                 </div>
@@ -453,7 +524,7 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
                     type="text"
                     value={eventOrganizer}
                     onChange={(e) => setEventOrganizer(e.target.value)}
-                    placeholder="Contoh: Puspresnas / SPE Undip SC"
+                    placeholder="Contoh: Puspresnas"
                     className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                   />
                 </div>
@@ -468,7 +539,7 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
                   type="text"
                   value={members}
                   onChange={(e) => setMembers(e.target.value)}
-                  placeholder="Contoh: Charissa Salsabilla Noor (5012211001), Rachel Putricia"
+                  placeholder="Contoh: Charissa Salsabilla Noor (5012211001)"
                   className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
                 />
               </div>
@@ -483,6 +554,73 @@ export function WallOfFameClient({ initialAchievements, isLiveDb }: Props) {
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                   className="w-full px-3 py-2 rounded-xl border border-neutral-300 bg-neutral-50 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white"
                 />
+              </div>
+
+              {/* Dua bagian opsional diletakkan di bagian paling bawah */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-neutral-700">
+                    Deskripsi Capaian Prestasi:
+                  </label>
+                  <span className="text-[11px] font-medium text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full">
+                    Opsional
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Contoh: Merancang strategi digitalisasi supply chain terintegrasi untuk UMKM lokal serta berhasil mempresentasikan studi kasus di hadapan panel juri industri hingga mengungguli 85 tim universitas."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 text-xs leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-neutral-700 flex items-center gap-1.5">
+                    <ImageIcon className="size-3.5 text-blue-600" />
+                    <span>Foto Dokumentasi Kegiatan / Penyerahan Juara:</span>
+                  </label>
+                  <span className="text-[11px] font-medium text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full">
+                    Opsional
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] || null;
+                    setPhoto(f);
+                    if (f) {
+                      setPhotoPreview(URL.createObjectURL(f));
+                    } else {
+                      setPhotoPreview(null);
+                    }
+                  }}
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-300 bg-neutral-50 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-neutral-900 file:text-white"
+                />
+                {photoPreview && (
+                  <div className="mt-2.5 relative inline-block">
+                    <img
+                      src={photoPreview}
+                      alt="Pratinjau Dokumentasi"
+                      className="w-36 h-24 object-cover rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhoto(null);
+                        setPhotoPreview(null);
+                      }}
+                      className="absolute -top-2 -right-2 size-5 bg-rose-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow hover:bg-rose-700 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                <p className="text-[11px] text-neutral-500 mt-1">
+                  Format JPG, PNG, atau WEBP (Maks 10MB). Foto ini akan ditampilkan di sisi kiri kartu prestasi Anda.
+                </p>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">

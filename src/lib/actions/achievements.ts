@@ -10,7 +10,7 @@ import { mockAchievements } from '@/data/achievements';
 /**
  * Maps a Supabase row to the Achievement interface
  */
-function mapAchievementRow(row: any): Achievement {
+function mapAchievementRow(row: any, photoUrl?: string | null): Achievement {
   return {
     id: row.id,
     title: row.title,
@@ -25,6 +25,8 @@ function mapAchievementRow(row: any): Achievement {
     eventOrganizer: row.event_organizer || '',
     badgeVariant: row.badge_variant || 'gold',
     certificateStorageKey: row.certificate_storage_key || null,
+    photoStorageKey: row.photo_storage_key || null,
+    photoUrl: photoUrl || null,
     verificationStatus: row.verification_status || 'PENDING',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -58,7 +60,24 @@ export async function getPublicAchievements(): Promise<{
       return { data: mockAchievements, isLiveDb: !error };
     }
 
-    return { data: data.map(mapAchievementRow), isLiveDb: true };
+    const enriched = await Promise.all(
+      data.map(async (row) => {
+        let photoUrl: string | null = null;
+        if (row.photo_storage_key) {
+          try {
+            const { data: signData } = await supabase.storage
+              .from('course-attachments')
+              .createSignedUrl(row.photo_storage_key, 60 * 60 * 24);
+            photoUrl = signData?.signedUrl || null;
+          } catch {
+            photoUrl = null;
+          }
+        }
+        return mapAchievementRow(row, photoUrl);
+      })
+    );
+
+    return { data: enriched, isLiveDb: true };
   } catch (err: any) {
     console.error('Error fetching public achievements:', err);
     return { data: mockAchievements, error: err.message, isLiveDb: false };
@@ -84,6 +103,7 @@ export async function submitAchievementReport(
     const yearRaw = formData.get('year') as string;
     const year = yearRaw ? parseInt(yearRaw, 10) : new Date().getFullYear();
     const file = formData.get('file') as File | null;
+    const photo = formData.get('photo') as File | null;
 
     if (!title || !award || !membersRaw) {
       return { success: false, error: 'Nama ajang, penghargaan/gelar juara, dan nama mahasiswa wajib diisi.' };
@@ -103,6 +123,7 @@ export async function submitAchievementReport(
     }
 
     let certificateStorageKey: string | null = null;
+    let photoStorageKey: string | null = null;
 
     if (file && file.size > 0) {
       const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -125,6 +146,27 @@ export async function submitAchievementReport(
       }
     }
 
+    if (photo && photo.size > 0) {
+      const sanitizedPhotoName = photo.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const photoPath = `achievement-photos/${Date.now()}_${sanitizedPhotoName}`;
+
+      try {
+        const photoBuffer = Buffer.from(await photo.arrayBuffer());
+        const { error: photoUploadError } = await supabase.storage
+          .from('course-attachments')
+          .upload(photoPath, photoBuffer, {
+            contentType: photo.type || 'image/jpeg',
+            upsert: true,
+          });
+
+        if (!photoUploadError) {
+          photoStorageKey = photoPath;
+        }
+      } catch (photoEx) {
+        console.error('Documentation photo upload error:', photoEx);
+      }
+    }
+
     // Determine badge variant
     const awardLower = award.toLowerCase();
     let badgeVariant: 'gold' | 'blue' | 'purple' | 'green' = 'gold';
@@ -133,6 +175,12 @@ export async function submitAchievementReport(
     } else if (awardLower.includes('bronze') || awardLower.includes('3rd') || awardLower.includes('juara 3')) {
       badgeVariant = 'purple';
     }
+
+    const autoDescription = eventOrganizer && eventOrganizer !== title
+      ? `Meraih predikat ${award} pada ajang ${title} yang diselenggarakan oleh ${eventOrganizer}.`
+      : `Meraih predikat ${award} pada ajang ${title}.`;
+
+    const finalDescription = description.trim() || autoDescription;
 
     const { data, error: insertError } = await supabase
       .from('student_achievements')
@@ -146,8 +194,9 @@ export async function submitAchievementReport(
         members,
         advisor: advisor || null,
         event_organizer: eventOrganizer || title,
-        description: description || `Capaian prestasi ${award} dalam ajang ${title}.`,
+        description: finalDescription,
         certificate_storage_key: certificateStorageKey,
+        photo_storage_key: photoStorageKey,
         badge_variant: badgeVariant,
         verification_status: 'PENDING',
       })
@@ -197,7 +246,24 @@ export async function getAdminAchievements(): Promise<{
       return { data: [], error: error.message };
     }
 
-    return { data: (data || []).map(mapAchievementRow) };
+    const enriched = await Promise.all(
+      (data || []).map(async (row) => {
+        let photoUrl: string | null = null;
+        if (row.photo_storage_key) {
+          try {
+            const { data: signData } = await supabase.storage
+              .from('course-attachments')
+              .createSignedUrl(row.photo_storage_key, 60 * 60 * 24);
+            photoUrl = signData?.signedUrl || null;
+          } catch {
+            photoUrl = null;
+          }
+        }
+        return mapAchievementRow(row, photoUrl);
+      })
+    );
+
+    return { data: enriched };
   } catch (err: any) {
     return { data: [], error: err.message };
   }

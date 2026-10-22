@@ -12,6 +12,7 @@ import { Resource, Announcement } from '@/types';
 import { CourseWithDetails } from '@/types/course';
 import { mapCoursesToResources } from '@/lib/utils/resourceMapper';
 import { getAttachmentDownloadUrl } from '@/lib/actions/courses';
+import { getMaterialDownloadUrl, recordMaterialVisit } from '@/lib/actions/materials';
 import {
   BookOpen,
   GraduationCap,
@@ -37,6 +38,7 @@ import {
 
 interface HomePageClientProps {
   initialCourses: CourseWithDetails[];
+  initialMaterials?: Resource[];
   isLiveCoursesDb: boolean;
   initialAnnouncements: Announcement[];
   isLiveAnnouncementsDb: boolean;
@@ -44,6 +46,7 @@ interface HomePageClientProps {
 
 export function HomePageClient({
   initialCourses,
+  initialMaterials = [],
   isLiveCoursesDb,
   initialAnnouncements,
   isLiveAnnouncementsDb,
@@ -56,13 +59,15 @@ export function HomePageClient({
   } | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Directly map courses from the Materi dan Soal page pipeline
+  // Directly map courses and verified learning materials
   const allResources: Resource[] = useMemo(() => {
     if (isLiveCoursesDb) {
-      return mapCoursesToResources(initialCourses);
+      const userMaterials = initialMaterials || [];
+      const courseResources = mapCoursesToResources(initialCourses);
+      return [...userMaterials, ...courseResources];
     }
     return [];
-  }, [isLiveCoursesDb, initialCourses]);
+  }, [isLiveCoursesDb, initialCourses, initialMaterials]);
 
   // Sort automatically by most visited / downloaded from Materi & Soal data
   const popularMaterials: Resource[] = useMemo(() => {
@@ -73,6 +78,34 @@ export function HomePageClient({
 
   // Real attachment download handler
   const handleRealDownload = async (resource: Resource) => {
+    if (resource.sampleUrl) {
+      setIsDownloading(true);
+      try {
+        const res = await getMaterialDownloadUrl(resource.sampleUrl);
+        if (res.error || !res.url) {
+          setDownloadNoticeResource({
+            resource,
+            error: res.error || 'Gagal membuat tautan unduhan berkas.',
+          });
+        } else {
+          recordMaterialVisit(resource.id);
+          const a = document.createElement('a');
+          a.href = res.url;
+          a.download = `${resource.title}.${resource.fileFormat?.toLowerCase() || 'pdf'}`;
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Terjadi kendala saat mengunduh berkas.';
+        setDownloadNoticeResource({ resource, error: msg });
+      } finally {
+        setIsDownloading(false);
+      }
+      return;
+    }
+
     if (!resource.attachmentId) {
       setDownloadNoticeResource({
         resource,
@@ -481,6 +514,21 @@ export function HomePageClient({
               >
                 Tutup
               </SecondaryButton>
+              {(previewResource.attachmentId || previewResource.sampleUrl) && (
+                <PrimaryButton
+                  variant="brand"
+                  size="sm"
+                  disabled={isDownloading}
+                  icon={<Download className="size-3.5" />}
+                  onClick={() => {
+                    const res = previewResource;
+                    setPreviewResource(null);
+                    handleRealDownload(res);
+                  }}
+                >
+                  {isDownloading ? 'Menyiapkan...' : 'Unduh Berkas'}
+                </PrimaryButton>
+              )}
               {previewResource.courseId && (
                 <Link href={`/courses/${previewResource.courseId}`}>
                   <PrimaryButton

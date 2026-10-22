@@ -98,6 +98,8 @@ export interface Achievement {
   badgeVariant?: 'gold' | 'blue' | 'purple' | 'green';
   certificateStorageKey?: string | null;
   certificateUrl?: string | null;
+  photoStorageKey?: string | null;
+  photoUrl?: string | null;
   verificationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt?: string;
   updatedAt?: string;
