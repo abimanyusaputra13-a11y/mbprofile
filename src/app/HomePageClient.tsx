@@ -117,8 +117,8 @@ export function HomePageClient({
         <PageContainer>
           <div className="relative mx-auto flex min-h-[55vh] flex-col items-center justify-center text-center">
             {/* Floating Academic Badges — Symmetrically positioned at top left and top right */}
-            <div className="animate-float-slow absolute -top-4 left-2 sm:top-2 sm:left-6 lg:left-12 xl:left-16 hidden md:flex items-center gap-2.5 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-neutral-200/90 shadow-md z-10">
-              <div className="p-1.5 rounded-xl bg-amber-50 text-amber-600">
+            <div className="animate-float-slow absolute -top-4 left-2 sm:top-2 sm:left-6 lg:left-12 xl:left-16 hidden md:flex items-center gap-2.5 bg-white px-4 py-2.5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] z-10">
+              <div className="p-1.5 rounded-xl bg-amber-50 text-amber-600 border border-black/20">
                 <Trophy className="size-5" />
               </div>
               <div className="text-left text-xs">
@@ -127,8 +127,8 @@ export function HomePageClient({
               </div>
             </div>
 
-            <div className="animate-float absolute -top-4 right-2 sm:top-2 sm:right-6 lg:right-12 xl:right-16 hidden md:flex items-center gap-2 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-2xl border border-neutral-200/90 shadow-md z-10">
-              <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600">
+            <div className="animate-float absolute -top-4 right-2 sm:top-2 sm:right-6 lg:right-12 xl:right-16 hidden md:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] z-10">
+              <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600 border border-black/20">
                 <ShieldCheck className="size-5" />
               </div>
               <div className="text-left text-xs">
@@ -195,7 +195,7 @@ export function HomePageClient({
                 return (
                   <div
                     key={idx}
-                    className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xs border border-neutral-200/80 shadow-2xs hover:shadow-xs transition"
+                    className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                   >
                     <Icon className="size-5 text-blue-600 mb-2" />
                     <p className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
@@ -265,7 +265,7 @@ export function HomePageClient({
             ].map((pilar, idx) => (
               <div
                 key={idx}
-                className="group relative p-6 sm:p-7 rounded-3xl bg-white border border-neutral-200/90 hover:border-blue-400 hover:shadow-xl transition-all duration-200"
+                className="group relative p-6 sm:p-7 rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl">{pilar.icon}</span>
@@ -326,7 +326,7 @@ export function HomePageClient({
           </div>
 
           {/* Popular Ranking Indicator Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 px-4 py-3 rounded-2xl bg-neutral-100/90 border border-neutral-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 px-5 py-3.5 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center size-6 rounded-lg bg-amber-100 text-amber-700 text-xs font-bold shadow-2xs">
                 🏆
@@ -372,7 +372,7 @@ export function HomePageClient({
          ========================================================================= */}
       <section>
         <PageContainer>
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-neutral-50 via-white to-blue-50/30 border border-neutral-200/90 shadow-sm">
+          <div className="p-8 sm:p-12 rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
             <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
@@ -407,7 +407,7 @@ export function HomePageClient({
               {initialAnnouncements.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white rounded-3xl border border-neutral-200/80 hover:border-blue-400 hover:shadow-md transition-all"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
                   <div className="space-y-1.5 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">

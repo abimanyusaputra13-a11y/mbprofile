@@ -102,8 +102,8 @@ export function CourseListClient({
 
       {/* Admin Module Navigation Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-white border-2 border-blue-600 shadow-xs flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+        <div className="p-4 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-black/20">
             <Layers className="size-5" />
           </div>
           <div>
@@ -114,10 +114,10 @@ export function CourseListClient({
 
         <Link
           href="/admin/announcements"
-          className="p-4 rounded-2xl bg-white border border-neutral-200/90 hover:border-blue-400 hover:shadow-xs transition flex items-center justify-between group"
+          className="p-4 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition-transform">
+            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-black/20 group-hover:scale-105 transition-transform">
               <BellRing className="size-5" />
             </div>
             <div>
@@ -132,10 +132,10 @@ export function CourseListClient({
 
         <Link
           href="/admin/materials"
-          className="p-4 rounded-2xl bg-white border border-neutral-200/90 hover:border-blue-400 hover:shadow-xs transition flex items-center justify-between group"
+          className="p-4 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-105 transition-transform">
+            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-black/20 group-hover:scale-105 transition-transform">
               <BookOpen className="size-5" />
             </div>
             <div>
@@ -174,7 +174,7 @@ export function CourseListClient({
       )}
 
       {/* Search Bar */}
-      <div className="bg-white rounded-3xl p-5 border border-neutral-200/90 shadow-sm">
+      <div className="bg-white rounded-3xl p-5 border-2 border-black shadow-[6px_6px_0px_0px_#000]">
         <label htmlFor="search-courses" className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
           Cari Mata Kuliah
         </label>
@@ -188,7 +188,7 @@ export function CourseListClient({
 
       {/* Course List Cards / Table */}
       {filteredCourses.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-3xl border border-neutral-200 p-8">
+        <div className="text-center py-12 bg-white rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_#000] p-8">
           <BookOpen className="size-12 text-neutral-300 mx-auto mb-3" />
           <h3 className="text-base font-bold text-neutral-900">
             Belum Ada Mata Kuliah yang Ditemukan
@@ -211,7 +211,7 @@ export function CourseListClient({
           {filteredCourses.map((course) => (
             <div
               key={course.id}
-              className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white rounded-3xl border border-neutral-200/90 hover:border-blue-400 hover:shadow-md transition-all"
+              className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
             >
               {/* Left Column: Course Details */}
               <div className="space-y-1.5 flex-1">

@@ -166,7 +166,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
               <span>Kembali ke Materi Mingguan</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="brand" size="sm">
@@ -194,7 +194,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
 
               {/* Quiz Rules & Specifications */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-y border-neutral-100">
-                <div className="p-3 bg-neutral-50 rounded-2xl text-center space-y-0.5">
+                <div className="p-3 bg-neutral-50 rounded-2xl border border-black/20 text-center space-y-0.5">
                   <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     Total Soal
                   </span>
@@ -203,7 +203,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                   </p>
                 </div>
 
-                <div className="p-3 bg-neutral-50 rounded-2xl text-center space-y-0.5">
+                <div className="p-3 bg-neutral-50 rounded-2xl border border-black/20 text-center space-y-0.5">
                   <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     Total Poin
                   </span>
@@ -212,7 +212,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                   </p>
                 </div>
 
-                <div className="p-3 bg-neutral-50 rounded-2xl text-center space-y-0.5">
+                <div className="p-3 bg-neutral-50 rounded-2xl border border-black/20 text-center space-y-0.5">
                   <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     Waktu
                   </span>
@@ -221,7 +221,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                   </p>
                 </div>
 
-                <div className="p-3 bg-neutral-50 rounded-2xl text-center space-y-0.5">
+                <div className="p-3 bg-neutral-50 rounded-2xl border border-black/20 text-center space-y-0.5">
                   <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     Ambang Lulus
                   </span>
@@ -232,7 +232,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
               </div>
 
               {/* Instructions Callout */}
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-amber-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-amber-900 space-y-1.5">
                 <div className="font-bold flex items-center gap-1.5">
                   <Info className="size-4 text-amber-600 shrink-0" />
                   <span>Petunjuk Pengerjaan:</span>
@@ -365,7 +365,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
           <PageContainer>
             <div className="max-w-3xl mx-auto space-y-6">
               {/* Question Navigation Numbers */}
-              <div className="bg-white rounded-2xl p-3 border border-neutral-200 flex items-center justify-between gap-2 overflow-x-auto">
+              <div className="bg-white rounded-2xl p-3 border-2 border-black shadow-[4px_4px_0px_0px_#000] flex items-center justify-between gap-2 overflow-x-auto">
                 <span className="text-xs font-bold text-neutral-500 shrink-0 hidden sm:inline">
                   Daftar Soal:
                 </span>
@@ -382,10 +382,10 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                         onClick={() => setActiveQuestionIdx(idx)}
                         className={`size-8 rounded-xl font-bold text-xs flex items-center justify-center transition cursor-pointer shrink-0 ${
                           isCurrent
-                            ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-600/30'
+                            ? 'bg-blue-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_#000]'
                             : isAnswered
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
-                            : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-400 font-extrabold'
+                            : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 border border-neutral-300'
                         }`}
                       >
                         {idx + 1}
@@ -397,11 +397,11 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
 
               {/* Active Question Card */}
               {currentQuestion ? (
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
                   {/* Question Info Bar */}
                   <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                      <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
                         Soal {activeQuestionIdx + 1} dari {quiz.question_count}
                       </span>
                       <span className="text-xs text-neutral-400 font-semibold">
@@ -409,7 +409,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                       </span>
                     </div>
 
-                    <span className="text-xs font-semibold text-neutral-500 bg-neutral-100 px-2.5 py-1 rounded-lg">
+                    <span className="text-xs font-semibold text-neutral-600 bg-neutral-100 px-2.5 py-1 rounded-lg border border-black/10">
                       {isMultiple
                         ? 'Pilihan Ganda Kompleks'
                         : isTrueFalse
@@ -446,17 +446,17 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                               currentQuestion.question_type
                             )
                           }
-                          className={`p-4 rounded-2xl border transition flex items-start gap-3 cursor-pointer select-none ${
+                          className={`p-4 rounded-2xl border-2 transition-all flex items-start gap-3 cursor-pointer select-none ${
                             isSelected
-                              ? 'bg-blue-50/70 border-blue-500 ring-2 ring-blue-500/20'
-                              : 'bg-white border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/50'
+                              ? 'bg-blue-50 border-black shadow-[4px_4px_0px_0px_#000] -translate-x-0.5 -translate-y-0.5'
+                              : 'bg-white border-black/40 hover:border-black hover:shadow-[3px_3px_0px_0px_#000]'
                           }`}
                         >
                           <div
                             className={`size-6 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 transition ${
                               isSelected
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-neutral-100 text-neutral-600'
+                                ? 'bg-blue-600 text-white border border-black'
+                                : 'bg-neutral-100 text-neutral-600 border border-neutral-300'
                             }`}
                           >
                             {isMultiple ? (isSelected ? '✓' : letter) : letter}
@@ -484,7 +484,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                       type="button"
                       disabled={activeQuestionIdx === 0}
                       onClick={() => setActiveQuestionIdx((prev) => Math.max(0, prev - 1))}
-                      className="px-4 py-2 rounded-xl text-xs font-bold border border-neutral-300 text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                      className="px-4 py-2 rounded-xl text-xs font-bold border-2 border-black text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       Sebelumnya
                     </button>
@@ -497,7 +497,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                             Math.min(quiz.question_count - 1, prev + 1)
                           )
                         }
-                        className="px-5 py-2 rounded-xl text-xs font-bold bg-neutral-900 text-white hover:bg-blue-600 transition cursor-pointer shadow-xs"
+                        className="px-5 py-2 rounded-xl text-xs font-bold bg-neutral-900 text-white hover:bg-blue-600 transition cursor-pointer border border-black shadow-[2px_2px_0px_0px_#000]"
                       >
                         Selanjutnya
                       </button>
@@ -506,7 +506,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                         type="button"
                         onClick={handleSubmitQuiz}
                         disabled={isPending}
-                        className="px-6 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition cursor-pointer shadow-xs flex items-center gap-1.5"
+                        className="px-6 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition cursor-pointer border border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5"
                       >
                         <Send className="size-3.5" />
                         <span>{isPending ? 'Mengirim...' : 'Kirim Jawaban Kuis'}</span>
@@ -517,7 +517,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
               ) : null}
 
               {/* Submit Final Confirmation Banner */}
-              <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="bg-white rounded-2xl p-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="text-xs text-neutral-600">
                   <span className="font-bold text-neutral-900">
                     {answeredCount} dari {quiz.question_count} soal
@@ -534,7 +534,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                   type="button"
                   onClick={handleSubmitQuiz}
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 disabled:bg-neutral-400 transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5 shrink-0"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 disabled:bg-neutral-400 transition cursor-pointer border border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center gap-1.5 shrink-0"
                 >
                   <Send className="size-3.5" />
                   <span>{isPending ? 'Memproses Nilai...' : 'Selesai & Kumpulkan'}</span>
@@ -562,7 +562,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
         <PageContainer>
           <div className="max-w-3xl mx-auto space-y-8">
             {/* Score Summary Card */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm text-center space-y-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] text-center space-y-4">
               <div className="inline-flex items-center justify-center size-16 rounded-3xl mb-1 shadow-xs ring-4">
                 {result.is_passed ? (
                   <div className="size-16 rounded-3xl bg-emerald-500 text-white flex items-center justify-center ring-4 ring-emerald-100">
@@ -598,7 +598,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
               </div>
 
               {/* Feedback text */}
-              <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/70 text-xs sm:text-sm text-neutral-700 max-w-lg mx-auto">
+              <div className="p-4 rounded-2xl bg-neutral-50 border-2 border-black/20 text-xs sm:text-sm text-neutral-700 max-w-lg mx-auto">
                 {result.feedback}
               </div>
 
@@ -606,7 +606,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link
                   href={`/courses/${courseId}/weeks/${topicId}`}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-neutral-800 transition shadow-xs flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-neutral-800 transition border border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center gap-1.5"
                 >
                   <ArrowLeft className="size-3.5" />
                   <span>Kembali ke Halaman Materi</span>
@@ -615,7 +615,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                 <button
                   type="button"
                   onClick={handleRestart}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-bold border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-bold border-2 border-black text-neutral-700 hover:bg-neutral-100 transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="size-3.5" />
                   <span>Coba Lagi Kuis</span>
@@ -636,11 +636,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
                     return (
                       <div
                         key={q.question_id}
-                        className={`bg-white rounded-3xl p-6 border shadow-2xs space-y-4 ${
-                          q.is_correct
-                            ? 'border-emerald-200 bg-gradient-to-b from-emerald-50/30 to-white'
-                            : 'border-rose-200 bg-gradient-to-b from-rose-50/30 to-white'
-                        }`}
+                        className={`bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-4`}
                       >
                         <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                           <div className="flex items-center gap-2">
@@ -708,7 +704,7 @@ export function QuizTakerClient({ quiz, courseId, topicId }: QuizTakerClientProp
 
                         {/* Explanation note if available */}
                         {q.explanation && (
-                          <div className="p-3 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-xs text-blue-900 space-y-1">
+                          <div className="p-3.5 rounded-2xl bg-blue-50 border-2 border-black shadow-[3px_3px_0px_0px_#000] text-xs text-blue-900 space-y-1">
                             <span className="font-bold flex items-center gap-1 text-blue-700">
                               <Sparkles className="size-3.5" />
                               Penjelasan Konsep:

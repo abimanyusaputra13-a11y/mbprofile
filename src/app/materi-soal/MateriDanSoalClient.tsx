@@ -271,10 +271,10 @@ export function MateriDanSoalClient({
              ========================================================================= */}
           <section className="mb-2">
             <PageContainer>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white shadow-md">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white border-2 border-black shadow-[6px_6px_0px_0px_#000]">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-neutral-950 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-neutral-950 px-2.5 py-0.5 rounded-full border border-black/30">
                       Sistem Pembelajaran Mingguan
                     </span>
                     <span className="text-xs text-blue-200">Silabus, Dokumen &amp; Kuis Interaktif</span>
@@ -288,7 +288,7 @@ export function MateriDanSoalClient({
                 </div>
                 <Link
                   href="/courses"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white text-blue-950 font-bold text-xs hover:bg-amber-300 hover:text-neutral-950 transition shadow-sm shrink-0 self-start sm:self-center"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white text-blue-950 font-bold text-xs hover:bg-amber-300 hover:text-neutral-950 transition border border-black shadow-[2px_2px_0px_0px_#000] shrink-0 self-start sm:self-center"
                 >
                   <BookOpen className="size-4 text-blue-600" />
                   <span>Buka Direktori Mata Kuliah</span>
@@ -303,7 +303,7 @@ export function MateriDanSoalClient({
              ========================================================================= */}
           <section>
             <PageContainer>
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
                 {/* Search Bar */}
                 <div className="max-w-2xl">
                   <label htmlFor="search-materials" className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">

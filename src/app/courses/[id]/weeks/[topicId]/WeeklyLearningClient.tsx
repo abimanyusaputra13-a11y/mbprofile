@@ -821,7 +821,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
               </h1>
 
               {(currentTopic.description || currentTopic.learning_objectives) && (
-                <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-xs text-neutral-700 space-y-1">
+                <div className="p-4 rounded-2xl bg-blue-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-neutral-700 space-y-1">
                   {currentTopic.learning_objectives && (
                     <p className="font-semibold text-blue-900 flex items-center gap-1.5">
                       <Sparkles className="size-3.5 text-blue-600" />
@@ -927,8 +927,8 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
             </div>
 
             {materials.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center rounded-3xl bg-white border border-neutral-200/80 space-y-3">
-                <div className="size-12 rounded-2xl bg-blue-50 text-blue-600 grid place-items-center mx-auto">
+              <div className="p-8 sm:p-12 text-center rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-3">
+                <div className="size-12 rounded-2xl bg-blue-50 text-blue-600 grid place-items-center mx-auto border border-black/20">
                   <FileText className="size-6" />
                 </div>
                 <h3 className="font-bold text-sm text-neutral-900">Belum Ada Materi Teks Diterbitkan</h3>
@@ -958,8 +958,8 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                         onClick={() => setActiveMaterialId(mat.id)}
                         className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer shrink-0 border ${
                           activeMaterial?.id === mat.id
-                            ? 'bg-neutral-900 text-white border-neutral-900 shadow-xs'
-                            : 'bg-white text-neutral-600 hover:bg-neutral-50 border-neutral-200'
+                            ? 'bg-neutral-900 text-white border-black shadow-[2px_2px_0px_0px_#000]'
+                            : 'bg-white text-neutral-600 hover:bg-neutral-50 border-neutral-300'
                         }`}
                       >
                         Bagian {idx + 1}: {mat.title}
@@ -970,7 +970,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
 
                 {/* Active Material Reader Card */}
                 {activeMaterial && (
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+                  <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
                       <div>
                         <h3 className="text-lg sm:text-xl font-extrabold text-neutral-900">
@@ -1025,7 +1025,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
             {/* ===================================================================
                 SECTION 2: DOWNLOADABLE ATTACHMENTS
                =================================================================== */}
-            <div className="bg-white rounded-3xl p-6 border border-neutral-200/90 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                 <h3 className="text-base font-bold text-neutral-900 flex items-center gap-2">
                   <Download className="size-4 text-amber-600" />
@@ -1053,7 +1053,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                   {attachments.map((att) => (
                     <div
                       key={att.id}
-                      className="p-3.5 rounded-2xl border border-neutral-200 hover:border-amber-400 bg-neutral-50/50 hover:bg-white transition space-y-2 group"
+                      className="p-3.5 rounded-2xl border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 bg-white transition space-y-2 group"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
@@ -1072,7 +1072,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                           download={att.file_name}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition shadow-2xs"
+                          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition border border-black shadow-[2px_2px_0px_0px_#000]"
                         >
                           <Download className="size-3.5" />
                           <span>Unduh Berkas</span>
@@ -1091,7 +1091,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
             {/* ===================================================================
                 SECTION 3: WEEKLY QUIZZES
                =================================================================== */}
-            <div className="bg-white rounded-3xl p-6 border border-neutral-200/90 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-4">
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                 <h3 className="text-base font-bold text-neutral-900 flex items-center gap-2">
                   <Award className="size-4 text-emerald-600" />
@@ -1119,7 +1119,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                   {quizzes.map((quiz) => (
                     <div
                       key={quiz.id}
-                      className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-neutral-50 border border-emerald-200 shadow-xs space-y-3"
+                      className="p-5 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all space-y-3"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2">
@@ -1724,7 +1724,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                =================================================================== */
             <div className="space-y-4">
               {/* Header Stats Bar */}
-              <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 flex flex-wrap items-center justify-between gap-3">
+              <div className="p-3.5 bg-neutral-50 rounded-2xl border-2 border-black shadow-[3px_3px_0px_0px_#000] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3 text-xs">
                   <span className="font-bold text-neutral-900">
                     {activeQuizQuestions.length} Pertanyaan
@@ -1805,7 +1805,7 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                   {activeQuizQuestions.map((q, idx) => (
                     <div
                       key={q.id}
-                      className="p-4 rounded-2xl bg-white border border-neutral-200/90 shadow-2xs space-y-3"
+                      className="p-4 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] space-y-3"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2 flex-wrap">

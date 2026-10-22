@@ -106,7 +106,7 @@ export default function WallOfFamePage() {
          ========================================================================= */}
       <section>
         <PageContainer>
-          <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-xs text-amber-900 flex items-start gap-3 shadow-2xs">
+          <div className="p-4 rounded-2xl bg-amber-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-amber-900 flex items-start gap-3">
             <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-amber-950">
@@ -125,7 +125,7 @@ export default function WallOfFamePage() {
          ========================================================================= */}
       <section>
         <PageContainer>
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
             <div className="max-w-2xl">
               <label htmlFor="search-achievements" className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
                 Pencarian Prestasi
@@ -149,10 +149,10 @@ export default function WallOfFamePage() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer border ${
                       selectedCategory === cat
-                        ? 'bg-neutral-900 text-white font-bold shadow-xs'
-                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                        ? 'bg-neutral-900 text-white font-bold border-black shadow-[2px_2px_0px_0px_#000]'
+                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border-neutral-300'
                     }`}
                   >
                     {cat}

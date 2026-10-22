@@ -151,7 +151,7 @@ export function DaftarDosenClient({
          ========================================================================= */}
       <section>
         <PageContainer>
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/90 shadow-sm space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
             <div className="max-w-2xl">
               <label
                 htmlFor="search-lecturers"
@@ -354,7 +354,7 @@ export function DaftarDosenClient({
             )}
 
             {/* Academic Profiles & External Links */}
-            <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200/80 space-y-3">
+            <div className="p-4 bg-neutral-50 rounded-2xl border-2 border-black shadow-[3px_3px_0px_0px_#000] space-y-3">
               <h4 className="font-bold text-neutral-900 flex items-center gap-1.5 text-xs">
                 <GraduationCap className="size-4 text-neutral-700" />
                 <span>Tautan Profil Publikasi Ilmiah Resmi</span>
@@ -366,7 +366,7 @@ export function DaftarDosenClient({
                     href={modalScholar}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-blue-200 hover:border-blue-400 hover:shadow-xs transition text-blue-700 group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition text-blue-700 group"
                   >
                     <div className="flex items-center gap-2">
                       <GraduationCap className="size-4 text-blue-600" />
@@ -389,7 +389,7 @@ export function DaftarDosenClient({
                     href={modalScopus}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-amber-200 hover:border-amber-400 hover:shadow-xs transition text-amber-800 group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition text-amber-800 group"
                   >
                     <div className="flex items-center gap-2">
                       <BookOpen className="size-4 text-amber-600" />

@@ -153,7 +153,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
             </div>
 
             {/* Quick Stats Card */}
-            <div className="flex sm:flex-col gap-3 p-4 sm:p-5 rounded-2xl bg-white border border-neutral-200/90 shadow-sm shrink-0 sm:min-w-[200px]">
+            <div className="flex sm:flex-col gap-3 p-4 sm:p-5 rounded-2xl bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] shrink-0 sm:min-w-[200px]">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
                   Beban Belajar
@@ -206,8 +206,8 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
             </div>
 
             {(!weeklyTopics || weeklyTopics.length === 0) ? (
-              <div className="p-8 sm:p-12 text-center rounded-3xl bg-white border border-neutral-200/80 space-y-3">
-                <div className="size-12 rounded-2xl bg-blue-50 text-blue-600 grid place-items-center mx-auto">
+              <div className="p-8 sm:p-12 text-center rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-3">
+                <div className="size-12 rounded-2xl bg-blue-50 text-blue-600 grid place-items-center mx-auto border border-black/20">
                   <BookOpen className="size-6" />
                 </div>
                 <h3 className="font-bold text-sm text-neutral-900">Belum Ada Topik Mingguan</h3>
@@ -229,12 +229,12 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
                   return (
                     <div
                       key={topic.id}
-                      className="group relative bg-white rounded-3xl p-6 border border-neutral-200/90 hover:border-blue-500 hover:shadow-lg transition-all duration-300 space-y-4"
+                      className="group relative bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 space-y-4"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-black bg-blue-600 text-white px-2.5 py-1 rounded-lg shadow-xs">
+                            <span className="font-mono text-xs font-black bg-blue-600 text-white px-2.5 py-1 rounded-lg border border-black/30">
                               {topic.week_number.toLowerCase().includes('week')
                                 ? topic.week_number
                                 : `Minggu ${topic.week_number}`}
@@ -252,7 +252,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
                         <Link
                           href={`/courses/${course.id}/weeks/${topic.id}`}
-                          className="inline-flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-blue-600 transition shadow-xs shrink-0 self-start sm:self-center"
+                          className="inline-flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold bg-neutral-900 text-white hover:bg-blue-600 transition border border-black shadow-[2px_2px_0px_0px_#000] shrink-0 self-start sm:self-center"
                         >
                           <span>Masuk Modul</span>
                           <ChevronRight className="size-3.5" />
@@ -261,15 +261,15 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
                       {/* Content summary badges */}
                       <div className="pt-3 border-t border-neutral-100 flex flex-wrap items-center gap-2.5 text-[11px] text-neutral-500">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-neutral-200/60 font-medium">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-black/20 font-medium">
                           <FileText className="size-3 text-blue-600" />
                           <span>{publishedMaterials.length} Materi Teks</span>
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-neutral-200/60 font-medium">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-black/20 font-medium">
                           <Layers className="size-3 text-amber-600" />
                           <span>{publishedAttachments.length} Berkas Unduhan</span>
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-neutral-200/60 font-medium">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-50 border border-black/20 font-medium">
                           <Award className="size-3 text-emerald-600" />
                           <span>{publishedQuizzes.length} Kuis Evaluasi</span>
                         </span>
@@ -285,7 +285,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <div className="space-y-6">
             {/* Assessment Component Card */}
             {assessments.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 border border-neutral-200/90 shadow-sm space-y-3">
+              <div className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-3">
                 <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
                   <Award className="size-4 text-blue-600" />
                   <span>Komposisi Penilaian (Evaluasi)</span>
@@ -294,7 +294,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
                   {assessments.map((a) => (
                     <div key={a.id} className="flex items-center justify-between text-xs py-1.5 border-b border-neutral-100 last:border-0">
                       <span className="text-neutral-700 font-medium">{a.component_name}</span>
-                      <span className="font-mono font-bold text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded-md">
+                      <span className="font-mono font-bold text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded-md border border-black/10">
                         {a.percentage !== null ? `${a.percentage}%` : '-'}
                       </span>
                     </div>
@@ -305,7 +305,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
             {/* References Card */}
             {references.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 border border-neutral-200/90 shadow-sm space-y-3">
+              <div className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-3">
                 <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
                   <BookOpen className="size-4 text-blue-600" />
                   <span>Pustaka Rujukan Mata Kuliah</span>
@@ -324,7 +324,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
             )}
 
             {/* Help / Guidance */}
-            <div className="p-5 rounded-3xl bg-blue-50/70 border border-blue-200/80 space-y-2 text-xs text-neutral-700">
+            <div className="p-5 rounded-3xl bg-blue-50 border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-2 text-xs text-neutral-700">
               <h4 className="font-bold text-neutral-900 flex items-center gap-1.5">
                 <Sparkles className="size-4 text-blue-600" />
                 <span>Petunjuk Mahasiswa MB-ITS</span>

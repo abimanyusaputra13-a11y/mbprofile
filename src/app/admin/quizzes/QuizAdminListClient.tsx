@@ -167,7 +167,7 @@ export function QuizAdminListClient({
       )}
 
       {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-neutral-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
         <div className="relative w-full sm:w-80">
           <Search className="size-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -187,7 +187,7 @@ export function QuizAdminListClient({
               onClick={() => setStatusFilter(filter)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition capitalize cursor-pointer ${
                 statusFilter === filter
-                  ? 'bg-blue-600 text-white shadow-2xs'
+                  ? 'bg-blue-600 text-white border border-black shadow-[2px_2px_0px_0px_#000]'
                   : 'text-neutral-600 hover:bg-neutral-100'
               }`}
             >
@@ -203,7 +203,7 @@ export function QuizAdminListClient({
 
       {/* Quizzes List */}
       {filteredQuizzes.length === 0 ? (
-        <div className="py-16 text-center bg-white rounded-3xl border border-neutral-200 shadow-2xs p-6 space-y-3">
+        <div className="py-16 text-center bg-white rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_#000] p-6 space-y-3">
           <Award className="size-10 text-neutral-300 mx-auto" />
           <div>
             <h3 className="font-bold text-neutral-800 text-sm">
@@ -226,7 +226,7 @@ export function QuizAdminListClient({
           {filteredQuizzes.map((quiz) => (
             <div
               key={quiz.id}
-              className="p-5 rounded-3xl bg-white border border-neutral-200/90 shadow-2xs hover:shadow-xs transition space-y-4 flex flex-col justify-between"
+              className="p-5 rounded-3xl bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Course & Week metadata */}

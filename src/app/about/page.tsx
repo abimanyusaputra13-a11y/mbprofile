@@ -97,7 +97,7 @@ export default function AboutPage() {
 
             {/* Quick Facts Card */}
             <div className="lg:col-span-5">
-              <div className="bg-gradient-to-tr from-blue-900 via-blue-800 to-indigo-900 rounded-[32px] p-8 text-white shadow-xl space-y-6">
+              <div className="bg-gradient-to-tr from-blue-900 via-blue-800 to-indigo-900 rounded-[32px] p-8 text-white border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-6">
                 <div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-300">
                     Fakta Singkat Departemen
@@ -158,7 +158,7 @@ export default function AboutPage() {
             />
 
             {/* Clear provisional placeholder notice */}
-            <div className="mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
+            <div className="mb-8 p-4 rounded-2xl bg-amber-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-amber-900 flex items-start gap-3">
               <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-amber-950">Catatan Konten Contoh Resmi:</p>
@@ -169,9 +169,9 @@ export default function AboutPage() {
             </div>
 
             {/* Vision Card */}
-            <div className="bg-white rounded-3xl p-8 sm:p-10 border border-neutral-200/90 shadow-sm mb-8">
+            <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black shadow-[6px_6px_0px_0px_#000] mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="grid place-items-center size-10 rounded-xl bg-blue-50 text-blue-600">
+                <div className="grid place-items-center size-10 rounded-xl bg-blue-50 text-blue-600 border border-black/20">
                   <Compass className="size-5" />
                 </div>
                 <div>
@@ -191,10 +191,10 @@ export default function AboutPage() {
               {aboutData.mission.map((m) => (
                 <div
                   key={m.number}
-                  className="bg-white rounded-3xl p-6 border border-neutral-200/90 shadow-2xs hover:border-blue-400 transition"
+                  className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="font-mono font-black text-lg text-blue-600 bg-blue-50 size-8 rounded-xl grid place-items-center">
+                    <span className="font-mono font-black text-lg text-blue-600 bg-blue-50 size-8 rounded-xl grid place-items-center border border-black/20">
                       {m.number}
                     </span>
                     <h4 className="font-bold text-neutral-900 text-base">{m.title}</h4>
@@ -226,7 +226,7 @@ export default function AboutPage() {
             {aboutData.laboratories.map((lab) => (
               <div
                 key={lab.id}
-                className="group bg-white rounded-3xl p-7 border border-neutral-200/90 hover:border-blue-400 hover:shadow-xl transition-all duration-200 flex flex-col justify-between"
+                className="group bg-white rounded-3xl p-7 border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
@@ -257,7 +257,7 @@ export default function AboutPage() {
                       {lab.technologies.map((tech) => (
                         <span
                           key={tech}
-                          className="text-[11px] font-medium bg-neutral-100 text-neutral-700 px-2.5 py-0.5 rounded-full"
+                          className="text-[11px] font-medium bg-neutral-100 text-neutral-700 px-2.5 py-0.5 rounded-full border border-black/10"
                         >
                           {tech}
                         </span>
@@ -299,10 +299,10 @@ export default function AboutPage() {
               {aboutData.organizationStructure.roles.map((item, idx) => (
                 <div
                   key={idx}
-                  className="bg-white rounded-3xl p-5 border border-neutral-200/80 shadow-2xs hover:border-blue-400 transition"
+                  className="bg-white rounded-3xl p-5 border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200">
                       {item.badge}
                     </span>
                     <span className="text-[10px] text-neutral-400">{item.division}</span>

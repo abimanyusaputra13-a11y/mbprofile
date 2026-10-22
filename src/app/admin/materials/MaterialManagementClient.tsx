@@ -316,32 +316,32 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
 
       {/* Analytics Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Total Materi</p>
           <p className="text-2xl font-black text-neutral-900 mt-1">{totalMaterials}</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
             <span>⚡ Hari Ini</span>
           </p>
           <p className="text-2xl font-black text-blue-600 mt-1">{totalViewsToday}</p>
           <p className="text-[10px] text-neutral-400 mt-0.5">24 Jam Terakhir</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
             <span>🔥 Minggu Ini</span>
           </p>
           <p className="text-2xl font-black text-amber-600 mt-1">{totalViewsWeek}</p>
           <p className="text-[10px] text-neutral-400 mt-0.5">7 Hari Terakhir</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
             <span>📈 Bulan Ini</span>
           </p>
           <p className="text-2xl font-black text-indigo-600 mt-1">{totalViewsMonth}</p>
           <p className="text-[10px] text-neutral-400 mt-0.5">30 Hari Terakhir</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs col-span-2 lg:col-span-1">
+        <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] col-span-2 lg:col-span-1">
           <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Total Kunjungan</p>
           <p className="text-2xl font-black text-emerald-600 mt-1">{totalViewsAll.toLocaleString()}</p>
           <p className="text-[10px] text-neutral-400 mt-0.5">Sepanjang Waktu</p>
@@ -349,7 +349,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
       </div>
 
       {/* Sorting by Timeframe Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-neutral-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-bold text-neutral-600 flex items-center gap-1">
             <Clock className="size-4 text-blue-600" />
@@ -365,10 +365,10 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               key={tf.key}
               type="button"
               onClick={() => setSortTimeframe(tf.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
                 sortTimeframe === tf.key
-                  ? 'bg-neutral-900 text-white shadow-2xs'
-                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  ? 'bg-neutral-900 text-white border-black shadow-[2px_2px_0px_0px_#000]'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border-neutral-300'
               }`}
             >
               {tf.label}
@@ -400,8 +400,8 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
               onClick={() => setSelectedType(t)}
               className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedType === t
-                  ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
+                  ? 'bg-blue-600 text-white border border-black shadow-[2px_2px_0px_0px_#000]'
+                  : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-300'
               }`}
             >
               {t}
@@ -413,7 +413,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
       {/* Materials List */}
       <div className="space-y-3">
         {filteredAndSorted.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-neutral-300 p-8">
+          <div className="text-center py-16 bg-white rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_#000] p-8">
             <BookOpen className="size-10 text-neutral-400 mx-auto mb-3" />
             <h3 className="text-base font-bold text-neutral-800">Tidak ada materi ditemukan</h3>
             <p className="text-xs text-neutral-500 mt-1">
@@ -424,7 +424,7 @@ export function MaterialManagementClient({ initialMaterials, error }: Props) {
           filteredAndSorted.map((item, index) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl p-5 border border-neutral-200/90 hover:border-blue-300 hover:shadow-xs transition flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+              className="bg-white rounded-2xl p-5 border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition flex flex-col lg:flex-row lg:items-center justify-between gap-4"
             >
               <div className="flex items-start gap-3.5 flex-1">
                 <span className="grid place-items-center size-8 rounded-xl bg-neutral-100 text-neutral-700 font-bold text-xs shrink-0 mt-0.5">

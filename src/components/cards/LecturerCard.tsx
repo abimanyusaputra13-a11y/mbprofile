@@ -30,7 +30,7 @@ export const LecturerCard: React.FC<LecturerCardProps> = ({ lecturer, onSelect }
   const scopusUrl = lecturer.scopus_url || lecturer.scopusUrl;
 
   return (
-    <div className="group relative flex flex-col justify-between bg-white rounded-3xl p-6 sm:p-7 border border-neutral-200/90 hover:border-blue-500 hover:shadow-xl transition-all duration-300">
+    <div className="group relative flex flex-col justify-between bg-white rounded-3xl p-6 sm:p-7 border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-300">
       <div>
         {/* Top Header with Portrait & Identity */}
         <div className="flex items-start gap-4 mb-4">

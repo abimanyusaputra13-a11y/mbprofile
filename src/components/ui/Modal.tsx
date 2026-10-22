@@ -65,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-white rounded-3xl shadow-2xl border border-neutral-200/80 overflow-hidden z-10 my-8 transition-all duration-200 animate-in zoom-in-95`}
+        className={`relative w-full ${maxWidthStyles[maxWidth]} bg-white rounded-3xl shadow-[8px_8px_0px_0px_#000] border-2 border-black overflow-hidden z-10 my-8 transition-all duration-200 animate-in zoom-in-95`}
       >
         {/* Header */}
         <div className="flex items-start justify-between p-6 sm:p-7 border-b border-neutral-100 bg-neutral-50/50">

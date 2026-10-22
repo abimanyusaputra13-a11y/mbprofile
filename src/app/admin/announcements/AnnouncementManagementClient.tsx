@@ -241,17 +241,17 @@ export function AnnouncementManagementClient({ initialAnnouncements, error }: Pr
 
       {/* Stats Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Total Pengumuman</p>
           <p className="text-2xl font-black text-neutral-900 mt-1">{announcements.length}</p>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Disematkan di Atas</p>
           <p className="text-2xl font-black text-amber-600 mt-1">
             {announcements.filter((a) => a.isPinned).length}
           </p>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-neutral-200/90 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
           <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status Terbit</p>
           <p className="text-2xl font-black text-emerald-600 mt-1">
             {announcements.filter((a) => a.isPublished !== false).length}
@@ -277,8 +277,8 @@ export function AnnouncementManagementClient({ initialAnnouncements, error }: Pr
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
+                  ? 'bg-blue-600 text-white border border-black shadow-[2px_2px_0px_0px_#000]'
+                  : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-300'
               }`}
             >
               {cat}
@@ -290,7 +290,7 @@ export function AnnouncementManagementClient({ initialAnnouncements, error }: Pr
       {/* Announcements List */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-neutral-300 p-8">
+          <div className="text-center py-16 bg-white rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_#000] p-8">
             <BellRing className="size-10 text-neutral-400 mx-auto mb-3" />
             <h3 className="text-base font-bold text-neutral-800">Tidak ada pengumuman ditemukan</h3>
             <p className="text-xs text-neutral-500 mt-1">
@@ -301,7 +301,7 @@ export function AnnouncementManagementClient({ initialAnnouncements, error }: Pr
           filtered.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl p-5 border border-neutral-200/90 hover:border-blue-300 hover:shadow-xs transition flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="bg-white rounded-2xl p-5 border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               <div className="space-y-1.5 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">

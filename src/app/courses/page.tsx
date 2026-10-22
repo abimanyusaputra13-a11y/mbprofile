@@ -32,7 +32,7 @@ export default async function CoursesDirectoryPage() {
       <PageContainer>
         <div className="space-y-8">
           {/* Header Banner */}
-          <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-900 rounded-3xl p-8 sm:p-10 text-white relative overflow-hidden shadow-lg">
+          <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-900 rounded-3xl p-8 sm:p-10 text-white relative overflow-hidden border-2 border-black shadow-[6px_6px_0px_0px_#000]">
             <div className="relative z-10 max-w-2xl space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold">
                 <GraduationCap className="size-4" />
@@ -53,13 +53,13 @@ export default async function CoursesDirectoryPage() {
 
           {/* Courses List */}
           {error && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
+            <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-xs text-rose-700">
               Gagal memuat mata kuliah: {error}
             </div>
           )}
 
           {courses.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 space-y-3">
+            <div className="bg-white rounded-3xl p-12 text-center border-2 border-black shadow-[6px_6px_0px_0px_#000] space-y-3">
               <BookOpen className="size-12 text-neutral-300 mx-auto" />
               <h3 className="text-base font-bold text-neutral-800">
                 Belum Ada Mata Kuliah yang Dipublikasikan
@@ -77,7 +77,7 @@ export default async function CoursesDirectoryPage() {
                 return (
                   <div
                     key={course.id}
-                    className="bg-white rounded-3xl p-6 border border-neutral-200/90 hover:border-blue-500 hover:shadow-md transition-all flex flex-col justify-between group space-y-5"
+                    className="bg-white rounded-3xl p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all flex flex-col justify-between group space-y-5"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-2">
@@ -130,7 +130,7 @@ export default async function CoursesDirectoryPage() {
 
                       <Link
                         href={`/courses/${course.id}`}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-neutral-900 group-hover:bg-blue-600 text-white font-bold text-xs transition shadow-xs"
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-neutral-900 group-hover:bg-blue-600 text-white font-bold text-xs transition border border-black shadow-[2px_2px_0px_0px_#000]"
                       >
                         <span>Buka Silabus & Modul</span>
                         <ChevronRight className="size-3.5" />
