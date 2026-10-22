@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Lecturer } from '@/types';
 import { Badge } from '@/components/ui/Badge';
-import { getLecturerPhotoUrl, getLecturerInitials } from '@/lib/lecturers';
+import { getLecturerPhotoUrl, getLecturerInitials, getLecturerInterests, getLecturerRoleBadge } from '@/lib/lecturers';
 import {
   Mail,
   MapPin,
@@ -23,16 +23,11 @@ export const LecturerCard: React.FC<LecturerCardProps> = ({ lecturer, onSelect }
   const [imageError, setImageError] = useState(false);
   const photoUrl = getLecturerPhotoUrl(lecturer);
   const initials = getLecturerInitials(lecturer.name);
-
-  // Normalize interests
-  const interests = lecturer.research_interests && lecturer.research_interests.length > 0
-    ? lecturer.research_interests
-    : lecturer.specializations || [];
+  const interests = getLecturerInterests(lecturer);
+  const roleBadge = getLecturerRoleBadge(lecturer);
 
   const scholarUrl = lecturer.google_scholar_url || lecturer.googleScholarUrl;
   const scopusUrl = lecturer.scopus_url || lecturer.scopusUrl;
-
-  const roleBadge = lecturer.position || lecturer.rank || 'Dosen Pengajar';
 
   return (
     <div className="group relative flex flex-col justify-between bg-white rounded-3xl p-6 sm:p-7 border border-neutral-200/90 hover:border-blue-500 hover:shadow-xl transition-all duration-300">

@@ -13,7 +13,7 @@ import { SimulationNotice } from '@/components/ui/SimulationNotice';
 import { LecturerCard } from '@/components/cards/LecturerCard';
 import { Badge } from '@/components/ui/Badge';
 import { Lecturer } from '@/types';
-import { getLecturerPhotoUrl, getLecturerInitials } from '@/lib/lecturers';
+import { getLecturerPhotoUrl, getLecturerInitials, getLecturerInterests } from '@/lib/lecturers';
 import {
   GraduationCap,
   Mail,
@@ -56,7 +56,7 @@ export function DaftarDosenClient({
   const allInterests = useMemo(() => {
     const set = new Set<string>();
     for (const lec of initialLecturers) {
-      const list = lec.research_interests || lec.specializations || [];
+      const list = getLecturerInterests(lec);
       for (const item of list) {
         if (item && item.trim()) {
           set.add(item.trim());
@@ -70,7 +70,7 @@ export function DaftarDosenClient({
   const filteredLecturers = useMemo(() => {
     return initialLecturers.filter((lec) => {
       const q = searchQuery.toLowerCase().trim();
-      const interests = lec.research_interests || lec.specializations || [];
+      const interests = getLecturerInterests(lec);
       const role = lec.position || lec.rank || '';
 
       const matchesSearch =
@@ -107,11 +107,7 @@ export function DaftarDosenClient({
   // Modal active lecturer
   const modalPhotoUrl = selectedLecturer ? getLecturerPhotoUrl(selectedLecturer) : null;
   const modalInitials = selectedLecturer ? getLecturerInitials(selectedLecturer.name) : 'DS';
-  const modalInterests = selectedLecturer
-    ? selectedLecturer.research_interests && selectedLecturer.research_interests.length > 0
-      ? selectedLecturer.research_interests
-      : selectedLecturer.specializations || []
-    : [];
+  const modalInterests = selectedLecturer ? getLecturerInterests(selectedLecturer) : [];
 
   const modalScholar = selectedLecturer?.google_scholar_url || selectedLecturer?.googleScholarUrl;
   const modalScopus = selectedLecturer?.scopus_url || selectedLecturer?.scopusUrl;

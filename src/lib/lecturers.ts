@@ -36,3 +36,20 @@ export function getLecturerInitials(name: string): string {
   }
   return 'DS';
 }
+
+/**
+ * Normalizes research interests, prioritizing research_interests array and falling back to specializations.
+ */
+export function getLecturerInterests(lecturer: Lecturer): string[] {
+  if (lecturer.research_interests && lecturer.research_interests.length > 0) {
+    return lecturer.research_interests;
+  }
+  return lecturer.specializations || [];
+}
+
+/**
+ * Returns the primary display title or role badge for a lecturer.
+ */
+export function getLecturerRoleBadge(lecturer: Lecturer): string {
+  return lecturer.position || lecturer.rank || 'Dosen Pengajar';
+}
