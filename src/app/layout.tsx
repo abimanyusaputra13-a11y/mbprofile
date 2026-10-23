@@ -18,7 +18,7 @@ const serifFont = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Departemen Manajemen Bisnis ITS — S1 Manajemen Bisnis & S1 Bisnis Digital',
+  title: 'Kantin-mb by marsheL',
   description:
     'Portal resmi Departemen Manajemen Bisnis, Fakultas Desain Kreatif dan Bisnis Digital (FDKBD / CREABIZ), Institut Teknologi Sepuluh Nopember (ITS). Menaungi program studi S1 Manajemen Bisnis dan S1 Bisnis Digital.',
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Departemen Manajemen Bisnis ITS' }],
   openGraph: {
-    title: 'Departemen Manajemen Bisnis ITS — S1 Manajemen Bisnis & S1 Bisnis Digital',
+    title: 'Kantin-mb by marsheL',
     description:
       'Portal resmi Departemen Manajemen Bisnis, Institut Teknologi Sepuluh Nopember (ITS) — S1 Manajemen Bisnis & S1 Bisnis Digital.',
     type: 'website',
