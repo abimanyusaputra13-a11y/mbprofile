@@ -11,6 +11,8 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export const instant = false;
+
 export default async function CourseDetailPage({ params }: PageProps) {
   await connection();
   const { id } = await params;

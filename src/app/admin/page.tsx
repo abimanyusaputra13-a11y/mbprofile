@@ -5,6 +5,8 @@ import { getAdminCourses } from '@/lib/actions/courses';
 import { CourseListClient } from './CourseListClient';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 
+export const instant = false;
+
 export default async function AdminDashboardPage() {
   await connection();
   const isConfigured = isSupabaseConfigured();

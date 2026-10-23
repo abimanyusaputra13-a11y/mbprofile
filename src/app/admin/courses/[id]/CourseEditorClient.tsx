@@ -41,6 +41,7 @@ import {
   Layers,
   BookOpen,
   ExternalLink,
+  Edit3,
 } from 'lucide-react';
 
 interface CourseEditorClientProps {
@@ -75,6 +76,7 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
   const [assessmentForm, setAssessmentForm] = useState({ component_name: '', percentage: '', description: '' });
 
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [editingTopicId, setEditingTopicId] = useState<string | null>(null);
   const [topicForm, setTopicForm] = useState({ week_number: '1', topic_title: '', subtopics: '' });
 
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
@@ -166,23 +168,41 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
     }
   };
 
+  const handleOpenAddTopic = () => {
+    setEditingTopicId(null);
+    setTopicForm({ week_number: (course.weekly_topics.length + 1).toString(), topic_title: '', subtopics: '' });
+    setIsTopicModalOpen(true);
+  };
+
+  const handleOpenEditTopic = (t: { id: string; week_number: string; topic_title: string; subtopics?: string | null }) => {
+    setEditingTopicId(t.id);
+    setTopicForm({ week_number: t.week_number, topic_title: t.topic_title, subtopics: t.subtopics || '' });
+    setIsTopicModalOpen(true);
+  };
+
   const handleAddTopic = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topicForm.topic_title.trim()) return;
+    if (!topicForm.topic_title.trim() || !topicForm.week_number.trim()) return;
     setStatusMessage(null);
 
     const res = await saveWeeklyTopic(course.id, {
+      id: editingTopicId || undefined,
       week_number: topicForm.week_number.trim(),
       topic_title: topicForm.topic_title.trim(),
       subtopics: topicForm.subtopics.trim() || null,
-      display_order: course.weekly_topics.length + 1,
+      display_order: editingTopicId ? undefined : course.weekly_topics.length + 1,
     });
 
     if (res.success) {
       setIsTopicModalOpen(false);
+      const wasEditing = Boolean(editingTopicId);
+      setEditingTopicId(null);
       setTopicForm({ week_number: '', topic_title: '', subtopics: '' });
       router.refresh();
-      setStatusMessage({ type: 'success', text: 'Topik mingguan berhasil ditambahkan.' });
+      setStatusMessage({
+        type: 'success',
+        text: wasEditing ? 'Topik mingguan berhasil diperbarui.' : 'Topik mingguan berhasil ditambahkan.',
+      });
     } else {
       setStatusMessage({ type: 'error', text: res.error || 'Gagal menyimpan topik mingguan.' });
     }
@@ -618,7 +638,7 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
               variant="brand"
               size="sm"
               icon={<Plus className="size-3.5" />}
-              onClick={() => setIsTopicModalOpen(true)}
+              onClick={handleOpenAddTopic}
             >
               Tambah Topik Minggu
             </PrimaryButton>
@@ -644,6 +664,16 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditTopic(t)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-neutral-100 text-neutral-700 hover:text-blue-600 transition border border-neutral-200 cursor-pointer"
+                      title="Edit judul dan rincian topik ini"
+                    >
+                      <Edit3 className="size-3.5 text-blue-600" />
+                      <span>Edit</span>
+                    </button>
+
                     <Link
                       href={`/courses/${course.id}/weeks/${t.id}`}
                       target="_blank"
@@ -957,15 +987,18 @@ export function CourseEditorClient({ initialCourse }: CourseEditorClientProps) {
       {isTopicModalOpen && (
         <Modal
           isOpen={isTopicModalOpen}
-          onClose={() => setIsTopicModalOpen(false)}
-          title="Tambah Topik Pembelajaran Mingguan"
+          onClose={() => {
+            setIsTopicModalOpen(false);
+            setEditingTopicId(null);
+          }}
+          title={editingTopicId ? "Edit Topik Pembelajaran Mingguan" : "Tambah Topik Pembelajaran Mingguan"}
           subtitle={course.name}
           maxWidth="md"
         >
           <form onSubmit={handleAddTopic} className="space-y-4 text-xs">
             <div>
               <label className="block font-semibold text-neutral-700 mb-1">
-                Nomor / Rentang Minggu: *
+                Minggu : *
               </label>
               <input
                 required

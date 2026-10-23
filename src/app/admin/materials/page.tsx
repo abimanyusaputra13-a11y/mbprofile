@@ -8,6 +8,8 @@ export const metadata = {
   title: 'Kelola Materi & Bank Soal - Admin MB ITS',
 };
 
+export const instant = false;
+
 export default async function AdminMaterialsPage() {
   await connection();
   const { data: materials, error } = await getAdminMaterials();

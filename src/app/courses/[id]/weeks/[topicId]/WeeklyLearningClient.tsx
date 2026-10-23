@@ -13,6 +13,9 @@ import {
   saveWeeklyMaterial,
   deleteWeeklyMaterial,
   uploadWeeklyAttachment,
+  updateWeeklyAttachment,
+  deleteWeeklyAttachment,
+  saveWeeklyTopicExtended,
   saveQuizBasic,
   saveQuizQuestion,
   deleteQuizQuestion,
@@ -26,6 +29,7 @@ import {
   CourseQuiz,
   QuizQuestion,
   QuestionType,
+  CourseWeeklyTopic,
 } from '@/types/course';
 import {
   ArrowLeft,
@@ -79,9 +83,21 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
 
   const { course, allWeeklyTopics, currentTopic, materials: initialMaterials, attachments: initialAttachments, quizzes: initialQuizzes, isAdmin } = initialData;
 
+  const [currentTopicState, setCurrentTopicState] = useState<CourseWeeklyTopic>(currentTopic);
+  const [allTopicsState, setAllTopicsState] = useState<CourseWeeklyTopic[]>(allWeeklyTopics);
   const [materials, setMaterials] = useState<WeeklyMaterial[]>(initialMaterials);
   const [attachments, setAttachments] = useState<CourseAttachment[]>(initialAttachments);
   const [quizzes, setQuizzes] = useState<CourseQuiz[]>(initialQuizzes);
+
+  // Topic Editing Modal State
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [topicForm, setTopicForm] = useState({
+    week_number: currentTopic.week_number,
+    topic_title: currentTopic.topic_title,
+    learning_objectives: currentTopic.learning_objectives || '',
+    description: currentTopic.description || '',
+    is_published: currentTopic.is_published ?? true,
+  });
 
   // Active material selection (tab if multiple)
   const [activeMaterialId, setActiveMaterialId] = useState<string>(
@@ -103,6 +119,17 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
   const [uploadCategory, setUploadCategory] = useState('Slide Dosen');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Attachment Edit Modal State
+  const [isEditAttachmentModalOpen, setIsEditAttachmentModalOpen] = useState(false);
+  const [editingAttachment, setEditingAttachment] = useState<CourseAttachment | null>(null);
+  const [editAttachmentForm, setEditAttachmentForm] = useState({
+    file_name: '',
+    file_category: 'Slide Dosen',
+    is_published: true,
+  });
+  const [replaceFile, setReplaceFile] = useState<File | null>(null);
+  const [isUpdatingAttachment, setIsUpdatingAttachment] = useState(false);
 
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [editingQuizSettings, setEditingQuizSettings] = useState<CourseQuiz | null>(null);
@@ -295,6 +322,133 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Handlers for Topic Management
+  const handleOpenTopicModal = () => {
+    setTopicForm({
+      week_number: currentTopicState.week_number,
+      topic_title: currentTopicState.topic_title,
+      learning_objectives: currentTopicState.learning_objectives || '',
+      description: currentTopicState.description || '',
+      is_published: currentTopicState.is_published ?? true,
+    });
+    setIsTopicModalOpen(true);
+  };
+
+  const handleSaveTopic = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topicForm.topic_title.trim() || !topicForm.week_number.trim()) return;
+
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await saveWeeklyTopicExtended({
+        id: currentTopicState.id,
+        course_id: course.id,
+        week_number: topicForm.week_number.trim(),
+        topic_title: topicForm.topic_title.trim(),
+        learning_objectives: topicForm.learning_objectives.trim() || null,
+        description: topicForm.description.trim() || null,
+        is_published: topicForm.is_published,
+      });
+
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else if (res.data) {
+        const updated = res.data;
+        setCurrentTopicState(updated);
+        setAllTopicsState((prev) =>
+          prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t))
+        );
+        setIsTopicModalOpen(false);
+        setStatusMessage({
+          type: 'success',
+          text: 'Topik pembelajaran mingguan berhasil diperbarui.',
+        });
+        router.refresh();
+      }
+    });
+  };
+
+  // Handlers for Attachment Edit & Delete
+  const handleOpenEditAttachmentModal = (att: CourseAttachment) => {
+    setEditingAttachment(att);
+    setEditAttachmentForm({
+      file_name: att.file_name,
+      file_category: att.file_category || 'Slide Dosen',
+      is_published: att.is_published ?? true,
+    });
+    setReplaceFile(null);
+    setIsEditAttachmentModalOpen(true);
+  };
+
+  const handleSaveEditAttachment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAttachment || !editAttachmentForm.file_name.trim()) return;
+
+    setIsUpdatingAttachment(true);
+    setStatusMessage(null);
+
+    try {
+      let formData: FormData | undefined;
+      if (replaceFile) {
+        formData = new FormData();
+        formData.append('file', replaceFile);
+      }
+
+      const res = await updateWeeklyAttachment(
+        course.id,
+        currentTopicState.id,
+        editingAttachment.id,
+        {
+          file_name: editAttachmentForm.file_name.trim(),
+          file_category: editAttachmentForm.file_category,
+          is_published: editAttachmentForm.is_published,
+        },
+        formData
+      );
+
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else if (res.data) {
+        const updated = res.data;
+        setAttachments((prev) =>
+          prev.map((a) => (a.id === updated.id ? updated : a))
+        );
+        setIsEditAttachmentModalOpen(false);
+        setEditingAttachment(null);
+        setReplaceFile(null);
+        setStatusMessage({
+          type: 'success',
+          text: `Berkas "${updated.file_name}" berhasil diperbarui.`,
+        });
+        router.refresh();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal memperbarui berkas.';
+      setStatusMessage({ type: 'error', text: msg });
+    } finally {
+      setIsUpdatingAttachment(false);
+    }
+  };
+
+  const handleDeleteAttachment = (id: string, fileName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus berkas "${fileName}"?`)) return;
+
+    setStatusMessage(null);
+    startTransition(async () => {
+      const res = await deleteWeeklyAttachment(course.id, currentTopicState.id, id);
+      if (res.error) {
+        setStatusMessage({ type: 'error', text: res.error });
+      } else {
+        setAttachments((prev) => prev.filter((a) => a.id !== id));
+        setStatusMessage({
+          type: 'success',
+          text: `Berkas "${fileName}" berhasil dihapus.`,
+        });
+        router.refresh();
+      }
+    });
   };
 
   // ===========================================================================
@@ -770,8 +924,8 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
 
             {/* Week Switcher Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-              {allWeeklyTopics.map((topic) => {
-                const isCurrent = topic.id === currentTopic.id;
+              {allTopicsState.map((topic) => {
+                const isCurrent = topic.id === currentTopicState.id;
                 return (
                   <Link
                     key={topic.id}
@@ -802,9 +956,9 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
             <div className="space-y-2 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-mono text-xs font-black bg-blue-600 text-white px-2.5 py-1 rounded-lg shadow-xs">
-                  {currentTopic.week_number.toLowerCase().includes('week')
-                    ? currentTopic.week_number
-                    : `Minggu ${currentTopic.week_number}`}
+                  {currentTopicState.week_number.toLowerCase().includes('week')
+                    ? currentTopicState.week_number
+                    : `Minggu ${currentTopicState.week_number}`}
                 </span>
                 <span className="text-xs text-neutral-500 font-semibold">
                   {course.name} ({course.code || 'MB'})
@@ -814,23 +968,28 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                     Mode Pengajar / Admin
                   </Badge>
                 )}
+                {!currentTopicState.is_published && (
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                    Draf Topik
+                  </span>
+                )}
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
-                {currentTopic.topic_title}
+                {currentTopicState.topic_title}
               </h1>
 
-              {(currentTopic.description || currentTopic.learning_objectives) && (
+              {(currentTopicState.description || currentTopicState.learning_objectives) && (
                 <div className="p-4 rounded-2xl bg-blue-50 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs text-neutral-700 space-y-1">
-                  {currentTopic.learning_objectives && (
+                  {currentTopicState.learning_objectives && (
                     <p className="font-semibold text-blue-900 flex items-center gap-1.5">
                       <Sparkles className="size-3.5 text-blue-600" />
-                      <span>Capaian Pembelajaran: {currentTopic.learning_objectives}</span>
+                      <span>Capaian Pembelajaran: {currentTopicState.learning_objectives}</span>
                     </p>
                   )}
-                  {currentTopic.description && (
+                  {currentTopicState.description && (
                     <p className="text-neutral-600 leading-relaxed font-light">
-                      {currentTopic.description}
+                      {currentTopicState.description}
                     </p>
                   )}
                 </div>
@@ -840,6 +999,14 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
             {/* Admin Quick Action Controls */}
             {isAdmin && (
               <div className="flex flex-wrap items-center gap-2 shrink-0 self-start">
+                <SecondaryButton
+                  variant="outline"
+                  size="sm"
+                  icon={<Edit3 className="size-3.5" />}
+                  onClick={handleOpenTopicModal}
+                >
+                  Edit Topik Ini
+                </SecondaryButton>
                 <PrimaryButton
                   variant="brand"
                   size="sm"
@@ -1057,13 +1224,41 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-neutral-900 group-hover:text-blue-600 transition truncate" title={att.file_name}>
-                            {att.file_name}
-                          </p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-xs font-bold text-neutral-900 group-hover:text-blue-600 transition truncate" title={att.file_name}>
+                              {att.file_name}
+                            </p>
+                            {!att.is_published && (
+                              <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded-full">
+                                Draf
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[10px] text-neutral-500 mt-0.5">
                             {att.file_category} • {formatFileSize(att.file_size_bytes)}
                           </p>
                         </div>
+
+                        {isAdmin && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditAttachmentModal(att)}
+                              className="p-1.5 text-neutral-600 hover:text-blue-600 hover:bg-neutral-100 rounded-lg transition cursor-pointer"
+                              title="Edit rincian berkas lampiran"
+                            >
+                              <Edit3 className="size-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAttachment(att.id, att.file_name)}
+                              className="p-1.5 text-neutral-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                              title="Hapus berkas lampiran"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {att.signedUrl ? (
@@ -1896,6 +2091,212 @@ export function WeeklyLearningClient({ initialData }: WeeklyLearningClientProps)
               </div>
             </div>
           )}
+        </Modal>
+      )}
+
+      {/* =========================================================================
+          ADMIN MODAL: EDIT WEEKLY TOPIC
+         ========================================================================= */}
+      {isTopicModalOpen && (
+        <Modal
+          isOpen={isTopicModalOpen}
+          onClose={() => setIsTopicModalOpen(false)}
+          title="Edit Topik Mingguan"
+          subtitle={`${course.name} (${course.code || 'MB'}) • ${currentTopicState.week_number}`}
+          maxWidth="lg"
+        >
+          <form onSubmit={handleSaveTopic} className="space-y-4 text-xs sm:text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                  Minggu : *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: 1 atau Weeks 1–2"
+                  value={topicForm.week_number}
+                  onChange={(e) => setTopicForm({ ...topicForm, week_number: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 font-mono"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                  Status Akses:
+                </label>
+                <select
+                  value={topicForm.is_published ? 'published' : 'draft'}
+                  onChange={(e) => setTopicForm({ ...topicForm, is_published: e.target.value === 'published' })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 bg-white"
+                >
+                  <option value="published">Publik (Terbit dan dapat diakses mahasiswa)</option>
+                  <option value="draft">Draf Privat (Hanya terlihat oleh Pengajar/Admin)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                Judul Topik Pembelajaran: *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Contoh: Introduction: Organizations, Managers, And Business"
+                value={topicForm.topic_title}
+                onChange={(e) => setTopicForm({ ...topicForm, topic_title: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 text-sm font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                Capaian Pembelajaran (Learning Objectives):
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Contoh: Mahasiswa mampu memahami fungsi manajerial dan peran bisnis..."
+                value={topicForm.learning_objectives}
+                onChange={(e) => setTopicForm({ ...topicForm, learning_objectives: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 leading-relaxed text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                Pokok Bahasan / Deskripsi Detail:
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Uraian subtopik, materi bahasan, atau instruksi belajar mingguan..."
+                value={topicForm.description}
+                onChange={(e) => setTopicForm({ ...topicForm, description: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600 leading-relaxed text-xs"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-100">
+              <SecondaryButton
+                variant="outline"
+                size="sm"
+                onClick={() => setIsTopicModalOpen(false)}
+              >
+                Batal
+              </SecondaryButton>
+              <PrimaryButton
+                type="submit"
+                variant="brand"
+                size="sm"
+                disabled={isPending}
+              >
+                {isPending ? 'Menyimpan...' : 'Simpan Perubahan Topik'}
+              </PrimaryButton>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* =========================================================================
+          ADMIN MODAL: EDIT ATTACHMENT
+         ========================================================================= */}
+      {isEditAttachmentModalOpen && editingAttachment && (
+        <Modal
+          isOpen={isEditAttachmentModalOpen}
+          onClose={() => {
+            setIsEditAttachmentModalOpen(false);
+            setEditingAttachment(null);
+            setReplaceFile(null);
+          }}
+          title="Edit Berkas Lampiran"
+          subtitle={`Minggu ${currentTopicState.week_number} • ${course.name}`}
+          maxWidth="md"
+        >
+          <form onSubmit={handleSaveEditAttachment} className="space-y-4 text-xs sm:text-sm">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                Nama Tampilan Berkas: *
+              </label>
+              <input
+                type="text"
+                required
+                value={editAttachmentForm.file_name}
+                onChange={(e) => setEditAttachmentForm({ ...editAttachmentForm, file_name: e.target.value })}
+                placeholder="Contoh: Slide Perkuliahan Pertemuan 1.pdf"
+                className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 focus:outline-none focus:border-blue-600"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                  Kategori Berkas:
+                </label>
+                <select
+                  value={editAttachmentForm.file_category}
+                  onChange={(e) => setEditAttachmentForm({ ...editAttachmentForm, file_category: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 bg-white"
+                >
+                  <option value="Slide Dosen">Slide Dosen</option>
+                  <option value="Silabus / RPS">Silabus / RPS</option>
+                  <option value="Modul Praktikum">Modul Praktikum</option>
+                  <option value="Latihan Soal">Latihan Soal</option>
+                  <option value="Template Tugas">Template Tugas</option>
+                  <option value="Dokumen">Dokumen Lainnya</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                  Status Akses:
+                </label>
+                <select
+                  value={editAttachmentForm.is_published ? 'published' : 'draft'}
+                  onChange={(e) => setEditAttachmentForm({ ...editAttachmentForm, is_published: e.target.value === 'published' })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-neutral-300 bg-white"
+                >
+                  <option value="published">Publik (Dapat diunduh)</option>
+                  <option value="draft">Draf Privat (Akses Pengajar)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">
+                Ganti Berkas Fisik (Opsional):
+              </label>
+              <input
+                type="file"
+                onChange={(e) => setReplaceFile(e.target.files?.[0] || null)}
+                className="w-full p-2 rounded-xl border border-neutral-300 bg-neutral-50 text-xs"
+              />
+              <p className="text-[11px] text-neutral-400 mt-1">
+                Pilih file baru jika ingin menimpa berkas yang tersimpan saat ini ({formatFileSize(editingAttachment.file_size_bytes)}). Kosongkan jika hanya mengubah nama atau kategori.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-100">
+              <SecondaryButton
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsEditAttachmentModalOpen(false);
+                  setEditingAttachment(null);
+                  setReplaceFile(null);
+                }}
+              >
+                Batal
+              </SecondaryButton>
+              <PrimaryButton
+                type="submit"
+                variant="brand"
+                size="sm"
+                disabled={isUpdatingAttachment}
+              >
+                {isUpdatingAttachment ? 'Menyimpan...' : 'Simpan Perubahan Berkas'}
+              </PrimaryButton>
+            </div>
+          </form>
         </Modal>
       )}
     </div>

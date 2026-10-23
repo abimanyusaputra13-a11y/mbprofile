@@ -379,9 +379,159 @@ export async function uploadWeeklyAttachment(
     return { error: dbError.message };
   }
 
+  const { data: signedData } = await storageClient.storage
+    .from('course-attachments')
+    .createSignedUrl(storagePath, 3600);
+
   revalidatePath(`/courses/${courseId}/weeks/${topicId}`);
   revalidatePath(`/admin/courses/${courseId}`);
-  return { data: attachmentRecord };
+  revalidatePath('/materi-soal');
+  return {
+    data: {
+      ...attachmentRecord,
+      signedUrl: signedData?.signedUrl || undefined,
+    },
+  };
+}
+
+export async function updateWeeklyAttachment(
+  courseId: string,
+  topicId: string,
+  attachmentId: string,
+  data: {
+    file_name: string;
+    file_category: string;
+    is_published?: boolean;
+  },
+  newFileFormData?: FormData
+): Promise<{ data?: CourseAttachment; error?: string }> {
+  await connection();
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { error: auth.error || 'Akses ditolak.' };
+
+  const supabase = await createClient();
+  if (!supabase) return { error: 'Database unconfigured' };
+
+  // Fetch current attachment
+  const { data: currentAtt, error: fetchErr } = await supabase
+    .from('course_attachments')
+    .select('*')
+    .eq('id', attachmentId)
+    .single();
+
+  if (fetchErr || !currentAtt) {
+    return { error: 'Berkas tidak ditemukan.' };
+  }
+
+  const adminClient = createAdminClient();
+  const storageClient = adminClient || supabase;
+
+  let storagePath = currentAtt.storage_path;
+  let mimeType = currentAtt.mime_type;
+  let fileSizeBytes = currentAtt.file_size_bytes;
+
+  // If a replacement file was uploaded
+  if (newFileFormData) {
+    const file = newFileFormData.get('file') as File;
+    if (file && file.size > 0) {
+      if (file.size > 25 * 1024 * 1024) {
+        return { error: 'Ukuran berkas pengganti melebihi 25 MB.' };
+      }
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const newStoragePath = `courses/${courseId}/weeks/${topicId}/${Date.now()}_${sanitizedName}`;
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const { error: uploadError } = await storageClient.storage
+        .from('course-attachments')
+        .upload(newStoragePath, buffer, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        return { error: `Gagal upload berkas pengganti: ${uploadError.message}` };
+      }
+
+      // Remove previous file from storage
+      await storageClient.storage.from('course-attachments').remove([currentAtt.storage_path]);
+
+      storagePath = newStoragePath;
+      mimeType = file.type || 'application/octet-stream';
+      fileSizeBytes = file.size;
+    }
+  }
+
+  const { data: updated, error: updateErr } = await supabase
+    .from('course_attachments')
+    .update({
+      file_name: data.file_name.trim(),
+      file_category: data.file_category,
+      storage_path: storagePath,
+      mime_type: mimeType,
+      file_size_bytes: fileSizeBytes,
+      is_published: data.is_published ?? currentAtt.is_published,
+    })
+    .eq('id', attachmentId)
+    .select()
+    .single();
+
+  if (updateErr) {
+    return { error: updateErr.message };
+  }
+
+  const { data: signedData } = await storageClient.storage
+    .from('course-attachments')
+    .createSignedUrl(storagePath, 3600);
+
+  revalidatePath(`/courses/${courseId}/weeks/${topicId}`);
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath('/materi-soal');
+
+  return {
+    data: {
+      ...updated,
+      signedUrl: signedData?.signedUrl || undefined,
+    },
+  };
+}
+
+export async function deleteWeeklyAttachment(
+  courseId: string,
+  topicId: string,
+  attachmentId: string
+): Promise<{ success: boolean; error?: string }> {
+  await connection();
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { success: false, error: auth.error || 'Akses ditolak.' };
+
+  const supabase = await createClient();
+  if (!supabase) return { success: false, error: 'Database unconfigured' };
+
+  const { data: attachment, error: fetchErr } = await supabase
+    .from('course_attachments')
+    .select('storage_path')
+    .eq('id', attachmentId)
+    .single();
+
+  if (fetchErr || !attachment) {
+    return { success: false, error: 'Berkas tidak ditemukan.' };
+  }
+
+  const adminClient = createAdminClient();
+  const storageClient = adminClient || supabase;
+  await storageClient.storage.from('course-attachments').remove([attachment.storage_path]);
+
+  const { error: delErr } = await supabase
+    .from('course_attachments')
+    .delete()
+    .eq('id', attachmentId);
+
+  if (delErr) return { success: false, error: delErr.message };
+
+  revalidatePath(`/courses/${courseId}/weeks/${topicId}`);
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath('/materi-soal');
+  return { success: true };
 }
 
 // ==============================================================================

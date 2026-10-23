@@ -10,6 +10,8 @@ interface AdminQuizPageProps {
   }>;
 }
 
+export const instant = false;
+
 export default async function AdminQuizPage({ params }: AdminQuizPageProps) {
   await connection();
   const auth = await verifyAdminStatus();

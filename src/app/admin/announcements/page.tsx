@@ -8,6 +8,8 @@ export const metadata = {
   title: 'Kelola Pengumuman & Agenda - Admin MB ITS',
 };
 
+export const instant = false;
+
 export default async function AdminAnnouncementsPage() {
   await connection();
   const { data: announcements, error } = await getAdminAnnouncements();

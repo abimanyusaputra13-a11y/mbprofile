@@ -204,6 +204,87 @@ export async function deleteCourse(courseId: string): Promise<{ success: boolean
 }
 
 /**
+ * Bulk update publication status of courses (publish or archive/draft)
+ */
+export async function bulkUpdateCoursePublish(
+  courseIds: string[],
+  isPublished: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { success: false, error: auth.error || 'Unauthorized' };
+
+  if (!courseIds || courseIds.length === 0) return { success: true };
+
+  const supabase = await createClient();
+  if (!supabase) return { success: false, error: 'Database unconfigured' };
+
+  const { error } = await supabase
+    .from('courses')
+    .update({ is_published: isPublished })
+    .in('id', courseIds);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath('/admin');
+  revalidatePath('/courses');
+  revalidatePath('/materi-soal');
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
+ * Bulk delete courses and their storage attachments
+ */
+export async function bulkDeleteCourses(
+  courseIds: string[]
+): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifyAdminStatus();
+  if (!auth.isAdmin) return { success: false, error: auth.error || 'Unauthorized' };
+
+  if (!courseIds || courseIds.length === 0) return { success: true };
+
+  const supabase = await createClient();
+  if (!supabase) return { success: false, error: 'Database unconfigured' };
+
+  // 1. Find all attachments to clean up from storage
+  const { data: attachments } = await supabase
+    .from('course_attachments')
+    .select('storage_path')
+    .in('course_id', courseIds);
+
+  if (attachments && attachments.length > 0) {
+    const paths = attachments.map((a) => a.storage_path).filter(Boolean);
+    if (paths.length > 0) {
+      await supabase.storage.from('course-attachments').remove(paths);
+    }
+  }
+
+  // 2. Weekly attachments if any
+  const { data: weeklyAtts } = await supabase
+    .from('course_weekly_attachments')
+    .select('storage_path')
+    .in('course_id', courseIds);
+
+  if (weeklyAtts && weeklyAtts.length > 0) {
+    const weeklyPaths = weeklyAtts.map((a) => a.storage_path).filter(Boolean);
+    if (weeklyPaths.length > 0) {
+      await supabase.storage.from('course-attachments').remove(weeklyPaths);
+    }
+  }
+
+  // 3. Delete courses from database
+  const { error } = await supabase.from('courses').delete().in('id', courseIds);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath('/admin');
+  revalidatePath('/courses');
+  revalidatePath('/materi-soal');
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
  * Save Assessment Component
  */
 export async function saveAssessment(
