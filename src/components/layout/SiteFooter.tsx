@@ -25,7 +25,7 @@ export const SiteFooter: React.FC = () => {
             {/* Social Links */}
             <div className="flex flex-wrap items-center gap-2.5">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/manyuu.sptr/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-neutral-200 text-xs font-semibold text-neutral-700 hover:text-blue-600 hover:border-blue-400 transition shadow-2xs"
@@ -35,7 +35,7 @@ export const SiteFooter: React.FC = () => {
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                   <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                 </svg>
-                <span>@mbisnis_its</span>
+                <span>@manyuu.sptr</span>
               </a>
               <a
                 href="https://github.com"
@@ -50,7 +50,7 @@ export const SiteFooter: React.FC = () => {
                 <span>GitHub Org</span>
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/abimanyu-hadi-saputra"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-neutral-200 text-xs font-semibold text-neutral-700 hover:text-blue-700 hover:border-blue-400 transition shadow-2xs"
@@ -152,9 +152,6 @@ export const SiteFooter: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <p>© 2026 Departemen Manajemen Bisnis, Institut Teknologi Sepuluh Nopember (ITS). Seluruh hak cipta dilindungi undang-undang.</p>
-          <p className="text-[11px] text-neutral-400">
-            Frontend Architecture Platform • Departemen Manajemen Bisnis ITS
-          </p>
         </div>
       </div>
     </footer>
